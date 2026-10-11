@@ -70,3 +70,9 @@ Node.js tests mock the YouTube API, but production integration and live device p
 EKKO Studio has one input for a channel name, @handle or YouTube URL. For handles, EKKO uses channels.list(forHandle); for names it uses search.list(type=channel) and channels.list to verify profiles. The admin confirms one match. EKKO stores its permanent Channel ID, name and profile picture, with no separate organization-name field.
 
 At any time, **Replace channel** opens the same search. Confirmation clears the old approved video and discoveries, so no cross-channel content is served. If an approved live broadcast is playing, Studio warns that replacing the channel interrupts the viewers. Cancelling preserves the old channel. YouTube searches require authentication and are quota-limited.
+
+## Sharing and Studio controls
+
+The approved Upcoming or Live event shows one share icon in the right side of the event bar. The popup offers WhatsApp, X, Facebook and Copy, with no generic system share sheet or external YouTube viewing button. WhatsApp/X carry the event title and channel-derived church name alongside the EKKO link; Facebook relies on the event-specific Open Graph metadata; Copy saves title, church and link. No share affordance appears before approval or after Ended. Keyboard Escape and outside taps dismiss the popup, which is rendered outside the video card to avoid clipping on phones.
+
+Studio's channel finder uses an icon inside its one input. Discovered event cards use icon-only Preview and Approve controls with titles and screen-reader labels.

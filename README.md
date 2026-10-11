@@ -57,7 +57,7 @@ Apache License 2.0. See [LICENSE](LICENSE).
 
 ## Adaptive browser experience (mobile and desktop)
 
-- **Phone:** compact watch-first layout, safe-area spacing for display cutouts, large touch targets and a fixed quick-action dock for Watch, Theater, Share, and Install (where supported).
+- **Phone:** compact watch-first layout, safe-area spacing for display cutouts, large touch targets and a fixed quick-action dock for Watch, Theater and Install (where supported).
 - **Desktop / large screens:** widescreen broadcast area and distraction-free Theater view. The same control also attempts real browser fullscreen after a user gesture; the in-page theater view is the fallback. Press **F** for Theater and **Esc** to exit when the page has keyboard focus.
 - **Installability:** EKKO includes a PWA manifest, 192px/512px icons, a public viewer service worker, and an iOS Add to Home Screen hint. Availability depends on the browser and HTTPS deployment.
 - **Offline behavior:** only the public app shell is cached as a fallback. Live state requests, the administrator interface, WebSub callbacks and YouTube video delivery are **never cached**. Streaming still needs connectivity.
@@ -67,4 +67,6 @@ These are browser enhancements, not separate native iOS/Android/TV applications.
 
 ### In-page event sharing
 
-The public viewer keeps visitors on EKKO. There is no outgoing **Watch on YouTube** button. For the approved Upcoming or Live broadcast, a single icon sits on the right side of the event information and shares the **event title, church name and EKKO link** (or copies all three when Web Share is unavailable). The redundant Share button in the mobile dock is removed. EKKO also renders event-and-church Open Graph / Twitter title and description dynamically for server-served event links; the GitHub Pages UI demo remains a static simulation.
+The public viewer keeps visitors on EKKO. There is no outgoing **Watch on YouTube** button. For the approved Upcoming or Live broadcast, a single icon sits on the right side of the event information and opens **WhatsApp, X, Facebook or Copy**. WhatsApp and X include the event title, church name and EKKO link; Copy saves all three together to the clipboard. Facebook shares EKKO's URL and reads the server-rendered event-and-church link preview (Facebook does not support arbitrary prefilled post text). The redundant Share button in the mobile dock is removed. EKKO also renders event-and-church Open Graph / Twitter title and description dynamically for server-served event links; the GitHub Pages UI demo remains a static simulation.
+
+The share menu is accessible by keyboard, closes on Escape/outside click and is positioned independently of the player to prevent clipping on narrow screens. Studio uses a magnifier icon inside the single YouTube search field and icon-only Preview/Approve actions, each with accessible labels.

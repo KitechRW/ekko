@@ -156,11 +156,27 @@ test("approval-gated EKKO discovery, live sync, branded assets, and WebSub signa
     assert.match(html,/rel="canonical" href="https:\/\/ekko\.rw\/"/);
     assert.match(html,/poster-stage/);
     assert.match(html,/id="share-button"/);
+    for(const id of ["share-whatsapp","share-x","share-facebook","share-copy"])assert.match(html,new RegExp(`id="${id}"`));
+    assert.match(html,/aria-haspopup="menu"/);
     assert.doesNotMatch(html,/id="youtube-link"|Watch on YouTube|Share event<\/button>/);
     assert.doesNotMatch(html,/id="dock-share"/);
     assert.match(html,/EKKO — Faith Through Hearing\./);
     r=await req("/admin");
-    assert.match(await r.text(),/Welcome back/);
+    const adminHtml=await r.text();
+    assert.match(adminHtml,/Welcome back/);
+    assert.match(adminHtml,/class="channel-search-submit"/);
+    assert.doesNotMatch(adminHtml,/Search <span aria-hidden="true">/);
+    r=await req("/viewer.js");
+    const viewerCode=await r.text();
+    assert.match(viewerCode,/wa\.me\/\?text=/);
+    assert.match(viewerCode,/twitter\.com\/intent\/tweet/);
+    assert.match(viewerCode,/facebook\.com\/sharer\/sharer\.php/);
+    assert.match(viewerCode,/navigator\.clipboard\.writeText/);
+    assert.match(viewerCode,/shareMenu\.style\.top/);
+    r=await req("/admin.js");
+    const studioCode=await r.text();
+    assert.match(studioCode,/candidate-icon-button/);
+    assert.match(studioCode,/aria-label/);
     for(const path of ["/styles.css","/studio.css","/viewer.js","/admin.js"]){
       r=await req(path);assert.equal(r.status,200);
     }
