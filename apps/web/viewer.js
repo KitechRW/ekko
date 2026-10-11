@@ -129,6 +129,8 @@ function shareContent(event, url) {
 }
 const shareButton=byId("share-button");
 const shareMenu=byId("share-menu");
+// Portal the menu to the document so narrow video cards cannot clip its contents.
+document.body.append(shareMenu);
 function closeShareMenu(returnFocus=false){
   const wasOpen=!shareMenu.hidden;
   shareMenu.hidden=true;
@@ -145,6 +147,16 @@ function openShareMenu(){
   // Facebook intentionally does not support prefilling an arbitrary post message.
   byId("share-facebook").href="https://www.facebook.com/sharer/sharer.php?u="+encodeURIComponent(url);
   shareMenu.hidden=false;
+  shareMenu.style.visibility="hidden";
+  const rect=shareButton.getBoundingClientRect(),panel=shareMenu.getBoundingClientRect();
+  const gap=10,margin=10;
+  const left=Math.min(Math.max(margin,rect.right-panel.width),Math.max(margin,innerWidth-panel.width-margin));
+  let top=rect.top-panel.height-gap;
+  if(top<margin)top=rect.bottom+gap;
+  if(top+panel.height>innerHeight-margin)top=Math.max(margin,innerHeight-panel.height-margin);
+  shareMenu.style.left=left+"px";
+  shareMenu.style.top=top+"px";
+  shareMenu.style.visibility="";
   shareButton.setAttribute("aria-expanded","true");
   byId("share-whatsapp").focus({preventScroll:true});
 }
@@ -175,8 +187,10 @@ for(const id of ["share-whatsapp","share-x","share-facebook"]){
 }
 byId("share-copy").addEventListener("click",copyShareContent);
 document.addEventListener("pointerdown",event=>{
-  if(!shareMenu.hidden&&!byId("share-anchor").contains(event.target))closeShareMenu();
+  if(!shareMenu.hidden&&!byId("share-anchor").contains(event.target)&&!shareMenu.contains(event.target))closeShareMenu();
 });
+window.addEventListener("resize",()=>{if(!shareMenu.hidden)closeShareMenu();});
+window.addEventListener("scroll",()=>{if(!shareMenu.hidden)closeShareMenu();},{passive:true});
 document.addEventListener("keydown",event=>{
   if(event.key==="Escape"&&!shareMenu.hidden){
     event.preventDefault();closeShareMenu(true);
