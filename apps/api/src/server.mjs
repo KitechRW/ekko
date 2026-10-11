@@ -11,6 +11,7 @@ const DEFAULT_DATA_FILE = join(ROOT, "data", "featured-event.json");
 const STATIC = new Map([
   ["/", ["apps/web/index.html", "text/html; charset=utf-8"]],
   ["/styles.css", ["apps/web/styles.css", "text/css; charset=utf-8"]],
+  ["/studio.css", ["apps/admin/studio.css", "text/css; charset=utf-8"]],
   ["/viewer.js", ["apps/web/viewer.js", "text/javascript; charset=utf-8"]],
   ["/admin", ["apps/admin/index.html", "text/html; charset=utf-8"]],
   ["/admin.js", ["apps/admin/admin.js", "text/javascript; charset=utf-8"]],
