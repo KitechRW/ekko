@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { once } from "node:events";
 import { createHmac, createHash } from "node:crypto";
 import { createApp } from "../src/server.mjs";
-import { normalizeBroadcast, parseVideoNotifications, validWebSubSignature } from "../src/youtube.mjs";
+import { normalizeBroadcast, parseVideoNotifications, validWebSubSignature, interpretChannelQuery, lookupYouTubeChannels } from "../src/youtube.mjs";
 
 const channelId="UC"+"a".repeat(22);
 const videoId="jfKfPfyJRdk";
@@ -28,7 +28,9 @@ test("approval-gated EKKO discovery, live sync, branded assets, and WebSub signa
   const fakeYoutube=async(url)=>{
     const target=new URL(String(url));
     if(target.hostname==="pubsubhubbub.appspot.com")return {ok:true,status:202};
+    if(target.pathname.endsWith("/channels"))return {ok:true,json:async()=>({items:[{id:channelId,snippet:{title:"My Church on YouTube",customUrl:"@mychurch"}}]})};
     if(target.pathname.endsWith("/search")){
+      if(target.searchParams.get("type")==="channel")return {ok:true,json:async()=>({items:[{id:{channelId}}]})};
       searchCalls++;
       return {ok:true,json:async()=>({items:target.searchParams.get("eventType")===mode ?
         [{id:{videoId}}] : []})};
@@ -78,6 +80,8 @@ test("approval-gated EKKO discovery, live sync, branded assets, and WebSub signa
     r=await req("/api/admin/dashboard","GET",undefined,headers);
     const dashboard=await r.json();
     assert.equal(dashboard.channelId,channelId);
+    assert.equal(dashboard.churchName,"My Church on YouTube");
+    assert.equal(dashboard.channelHandle,"@mychurch");
     assert.ok(dashboard.candidates.some(x=>x.youtubeVideoId===videoId));
     assert.equal(dashboard.approvedVideoId,null);
     assert.equal(searchCalls,2);

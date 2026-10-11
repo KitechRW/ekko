@@ -4,7 +4,7 @@
 
 ## v0.1 — one church, one approved live event
 
-EKKO v0.1 is a responsive branded web viewer and a private **EKKO Studio** dashboard. The administrator signs in and enters a **YouTube Channel ID once**; EKKO discovers public upcoming and live broadcasts. **Discovered videos are never published automatically.** The administrator approves the desired video, and only that featured event appears on the public page.
+EKKO v0.1 is a responsive branded web viewer and a private **EKKO Studio** dashboard. The administrator signs in and searches using **one channel-name or @handle field**; EKKO resolves the selected channel ID and EKKO discovers public upcoming and live broadcasts. **Discovered videos are never published automatically.** The administrator approves the desired video, and only that featured event appears on the public page.
 
 After approval, the event transitions **Upcoming → Live → Ended** from verified YouTube video metadata. The viewer uses a countdown for upcoming broadcasts, an embedded live player for active broadcasts, and a gentle ended state. A manual status override is available to the administrator as a fallback.
 
@@ -17,7 +17,7 @@ Requires Node.js >=20, a single writable server process, persistent filesystem s
 3. Run npm start. Visit /admin for the Studio sign-in and / for the public viewer.
 4. Run npm run check and npm test. Test live playback, channel notifications and production reverse-proxy/HTTPS behavior before launch.
 
-**No Video ID needs to be entered manually.** Use a YouTube Channel ID beginning with UC, not an @handle. The configured channel must have public upcoming/live events discoverable with the YouTube Data API. Unlisted or private live events may not appear in unauthenticated public discovery. YouTube must permit embedding.
+**No Video ID, Channel ID, or organization name entry is necessary.** Search by name or @handle, then confirm the matching YouTube channel. The administrator can replace it at any time; the previous approved broadcast and discoveries are cleared before the new channel is monitored. The configured channel must have public upcoming/live events discoverable with the YouTube Data API. Unlisted or private live events may not appear in unauthenticated public discovery. YouTube must permit embedding.
 
 ### How automatic synchronization works
 
@@ -41,7 +41,8 @@ This is a **one-church, one-instance, one-event** release. No PostgreSQL, multi-
 | GET /admin | Branded EKKO Studio sign-in/dashboard |
 | GET /api/event | Approved public broadcast only |
 | GET /api/admin/dashboard | Private connected channel, discoveries and approval |
-| PUT /api/admin/channel | Configure the one church and channel |
+| GET /api/admin/channel/search?q= | Search verified channels by name, @handle, or URL |
+| PUT /api/admin/channel | Connect or replace selected channel after server-side verification |
 | POST /api/admin/scan | Quota-aware manual discovery |
 | POST /api/admin/approve | Publish a verified discovered video |
 | POST /api/admin/withdraw | Remove featured event from public page |

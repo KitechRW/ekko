@@ -64,3 +64,9 @@ Node.js tests mock the YouTube API, but production integration and live device p
 - Verify the EKKO PWA install prompt on an eligible Android browser and the manual Share → Add to Home Screen flow on iOS. Browser support varies.
 - Reload the installed viewer online and offline; when offline the app shell may display, but no stale live status should be represented as a new verified YouTube result.
 - Test phone-sized EKKO Studio login and approval cards; Studio is not stored in the offline cache.
+
+## Channel selection
+
+EKKO Studio has one input for a channel name, @handle or YouTube URL. For handles, EKKO uses channels.list(forHandle); for names it uses search.list(type=channel) and channels.list to verify profiles. The admin confirms one match. EKKO stores its permanent Channel ID, name and profile picture, with no separate organization-name field.
+
+At any time, **Replace channel** opens the same search. Confirmation clears the old approved video and discoveries, so no cross-channel content is served. If an approved live broadcast is playing, Studio warns that replacing the channel interrupts the viewers. Cancelling preserves the old channel. YouTube searches require authentication and are quota-limited.
