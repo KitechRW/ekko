@@ -1,0 +1,37 @@
+name: Render EKKO raster brand assets
+
+on:
+  push:
+    branches:
+      - main
+      - feat/mvp-v0.1-youtube-live
+    paths:
+      - "apps/web/assets/*.svg"
+      - ".github/workflows/branding.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  export-images:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Install SVG renderer
+        run: sudo apt-get update && sudo apt-get install -y librsvg2-bin
+      - name: Render optimized social and icon images
+        run: |
+          rsvg-convert -w 1200 -h 630 -o apps/web/assets/social-card.png apps/web/assets/social-card.svg
+          rsvg-convert -w 256 -h 256 -o apps/web/assets/icon.png apps/web/assets/icon.svg
+          rsvg-convert -w 180 -h 180 -o apps/web/assets/apple-touch-icon.png apps/web/assets/icon.svg
+          rsvg-convert -w 880 -h 234 -o apps/web/assets/logo-light.png apps/web/assets/logo-light.svg
+      - name: Commit generated assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/web/assets/social-card.png apps/web/assets/icon.png apps/web/assets/apple-touch-icon.png apps/web/assets/logo-light.png
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "assets: publish raster EKKO social image and icons"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
