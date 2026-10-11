@@ -43,9 +43,18 @@ function card(item,featured) {
   const time=document.createElement("p");time.className="muted-text";
   time.textContent=item.status==="ended"?"Broadcast ended":fullDate(item.scheduledStartAt);
   const row=document.createElement("div");row.className="candidate-actions";
-  const link=document.createElement("a");link.href=item.youtubeUrl;link.target="_blank";link.rel="noopener noreferrer";link.textContent="Preview ↗";link.className="studio-outline";
-  const action=document.createElement("button");action.type="button";action.className="studio-button "+(featured?"secondary":"primary");
-  action.textContent=featured?"Approved ✓":"Approve for EKKO →";action.disabled=featured;
+  const link=document.createElement("a");
+  link.href=item.youtubeUrl;link.target="_blank";link.rel="noopener noreferrer";
+  link.className="candidate-icon-button";
+  link.setAttribute("aria-label","Preview "+(item.title||"broadcast")+" on YouTube");
+  link.title="Preview broadcast";
+  link.innerHTML='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const action=document.createElement("button");action.type="button";
+  action.className="candidate-icon-button approve"+(featured?" approved":"");
+  action.disabled=featured;
+  action.title=featured?"Already approved":"Approve for EKKO";
+  action.setAttribute("aria-label",featured?"Already approved: "+item.title:"Approve "+(item.title||"broadcast")+" for EKKO");
+  action.innerHTML='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4.5 4.5L19.5 6.5"/></svg>';
   action.addEventListener("click",()=>approve(item.youtubeVideoId));
   row.append(link,action);body.append(h,time,row);article.append(cover,body);
   return article;
@@ -223,7 +232,7 @@ get("channel-form").addEventListener("submit",async e=>{
   if(query.length<2){get("channel-search-status").textContent="Enter a channel name or @handle.";return;}
   channelSearching=true;
   const button=get("find-channel");
-  button.disabled=true;button.textContent="Searching…";
+  button.disabled=true;button.classList.add("is-searching");
   get("channel-search-status").textContent="Searching YouTube for matching channels…";
   channelResults=[];renderChannelResults();
   try{
@@ -236,7 +245,7 @@ get("channel-form").addEventListener("submit",async e=>{
       "Select the correct channel below. Nothing is connected until you confirm.":
       "No matching public YouTube channel was found. Check the spelling or try its @handle.";
   }catch(error){get("channel-search-status").textContent=error.message;}
-  finally{channelSearching=false;button.disabled=false;button.textContent="Search →";}
+  finally{channelSearching=false;button.disabled=false;button.classList.remove("is-searching");}
 });
 get("refresh-button").addEventListener("click",()=>perform(
   ()=>request("/api/admin/scan",{method:"POST"}),
