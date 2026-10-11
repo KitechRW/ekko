@@ -3,24 +3,22 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#080b13">
-  <meta name="description" content="EKKO — Faith Through Hearing. Watch and participate in church services and other Christian live events from anywhere.">
+  <meta name="theme-color" content="#080c18">
+  <meta name="description" content="EKKO — Faith Through Hearing. Experience church services and Christian live events together, from wherever you are.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="EKKO">
   <meta property="og:title" content="EKKO — Faith Through Hearing.">
-  <meta property="og:description" content="Watch church services and Christian live events together, wherever you are.">
+  <meta property="og:description" content="A beautiful place to experience church and Christian live events together.">
   <link rel="canonical" href="__EKKO_SITE_URL__">
   <meta property="og:url" content="__EKKO_SITE_URL__">
   <meta property="og:image" content="__EKKO_SOCIAL_IMAGE__">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="EKKO — Faith Through Hearing. Christian Live Streaming.">
+  <meta property="og:image:alt" content="EKKO — Faith Through Hearing.">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="EKKO — Faith Through Hearing.">
-  <meta name="twitter:description" content="Watch church services and Christian live events together, wherever you are.">
   <meta name="twitter:image" content="__EKKO_SOCIAL_IMAGE__">
-  <meta name="robots" content="index, follow">
   <title>EKKO — Faith Through Hearing.</title>
   <link rel="icon" type="image/svg+xml" href="/assets/icon.svg">
   <link rel="icon" type="image/png" sizes="256x256" href="/assets/icon.png">
@@ -29,53 +27,60 @@
   <link rel="stylesheet" href="/styles.css">
   <script src="/viewer.js" defer></script>
 </head>
-<body>
+<body class="viewer-body">
   <div class="ambient"></div>
   <header class="site-header container">
-    <a class="brand" href="/" aria-label="EKKO home">
-      <img class="brand-image" src="/assets/logo-light.svg" alt="EKKO" width="176" height="47">
-    </a>
-    <span class="header-note"><span class="pulse-dot"></span> FAITH THROUGH HEARING.</span>
+    <a class="brand" href="/" aria-label="EKKO home"><img class="brand-image" src="/assets/logo-light.svg" alt="EKKO" width="174" height="47"></a>
+    <div class="header-right"><span class="header-wordmark">FAITH THROUGH HEARING.</span><span id="header-status" class="header-status"><span class="signal-led"></span> BROADCAST HUB</span></div>
   </header>
-  <main class="container">
-    <div class="intro">
-      <div class="eyebrow"><span class="tiny-line"></span> ONE MOMENT. ONE COMMUNITY.</div>
-      <h1 id="event-title">Faith, together.<br>Wherever you are.</h1>
-      <p id="event-description" class="subheading">A place to gather and experience church live.</p>
-    </div>
-    <section class="broadcast-card" aria-label="Featured broadcast">
-      <div class="video-stage" id="video-stage">
-        <div id="player-host" class="player-host">
-          <div class="stage-message">
-            <div class="stage-symbol" aria-hidden="true"><img src="/assets/icon.svg" alt="" width="80" height="80"></div>
-            <h2 id="stage-title">Welcome to EKKO</h2>
-            <p id="stage-description">Our next broadcast will appear here.</p>
+  <main class="container viewer-main">
+    <section class="viewer-hero">
+      <div class="hero-eyebrow"><span class="tiny-line"></span><span id="broadcast-kicker">SHARED MOMENTS. REAL CONNECTION.</span></div>
+      <h1 id="event-title">A place to experience<br><span>faith together.</span></h1>
+      <p id="event-description" class="viewer-lead">Wherever you are, you're part of the moment. Welcome to EKKO.</p>
+    </section>
+    <section class="experience-frame" aria-label="Featured live broadcast">
+      <div id="video-stage" class="video-stage">
+        <div id="poster-stage" class="poster-stage">
+          <img id="poster-image" alt="Broadcast event poster" hidden>
+          <div class="poster-shade"></div>
+          <div class="poster-orbit poster-orbit-a"></div>
+          <div class="poster-orbit poster-orbit-b"></div>
+          <div class="poster-center">
+            <div class="poster-symbol"><img src="/assets/icon.svg" alt="" width="80" height="80"></div>
+            <span id="stage-eyebrow" class="poster-eyebrow">EKKO LIVE EXPERIENCE</span>
+            <h2 id="stage-title">Every moment has a place.</h2>
+            <p id="stage-description">Your next shared live experience will appear here.</p>
+            <div id="countdown" class="countdown" hidden aria-label="Time until the event begins">
+              <div><strong id="count-days">00</strong><small>DAYS</small></div>
+              <div><strong id="count-hours">00</strong><small>HOURS</small></div>
+              <div><strong id="count-minutes">00</strong><small>MIN</small></div>
+              <div><strong id="count-seconds">00</strong><small>SEC</small></div>
+            </div>
           </div>
         </div>
-        <span id="video-badge" class="video-badge" hidden>● LIVE</span>
+        <div id="player-host" class="player-host" hidden></div>
+        <span id="video-badge" class="video-badge" hidden><span class="signal-led"></span> LIVE NOW</span>
       </div>
-      <div class="broadcast-info">
-        <div class="broadcast-primary">
-          <span id="status-chip" class="status-chip">AWAITING BROADCAST</span>
-          <h2 id="program-title">Your place to watch, together.</h2>
-          <p id="church-name">EKKO · Built for every church</p>
-          <p id="schedule" class="schedule"></p>
+      <div class="broadcast-bar">
+        <div class="broadcast-details">
+          <div class="broadcast-state"><span id="status-chip" class="status-chip" role="status">AWAITING NEXT EVENT</span><span id="event-clock" class="event-clock"></span></div>
+          <h2 id="program-title">The next moment starts here.</h2>
+          <div class="church-line"><span class="church-avatar"><img src="/assets/icon.svg" alt=""></span><span id="church-name">EKKO · Faith Through Hearing.</span></div>
         </div>
         <div class="broadcast-actions">
-          <button type="button" class="action secondary" id="share-button" aria-label="Share broadcast">↗ <span>Share</span></button>
-          <a id="youtube-link" class="action primary" target="_blank" rel="noopener noreferrer" hidden>Open on YouTube ↗</a>
+          <button type="button" class="experience-button outline" id="share-button" aria-label="Share EKKO broadcast"><span aria-hidden="true">↗</span> Share event</button>
+          <a id="youtube-link" class="experience-button solid" target="_blank" rel="noopener noreferrer" hidden>Watch on YouTube <span aria-hidden="true">↗</span></a>
         </div>
       </div>
     </section>
-    <section class="mission">
-      <div class="mission-icon">✳</div>
-      <div>
-        <h2>More than a stream. A shared moment.</h2>
-        <p>EKKO connects communities to the same moment of worship, no matter where they gather.</p>
-      </div>
+    <section class="viewer-bottom">
+      <div class="mission-emblem"><img src="/assets/icon.svg" alt="" width="52"></div>
+      <div class="mission-text"><span class="micro-label">MORE THAN A STREAM</span><h2>Presence is more than proximity.</h2><p>EKKO creates one beautiful place to experience moments of faith together, wherever we gather.</p></div>
+      <div class="mission-aside">ONE MOMENT<br>ONE COMMUNITY<span class="aside-glow">✦</span></div>
     </section>
   </main>
-  <footer class="site-footer container"><span>EKKO <span class="footer-muted">/ OPEN TO EVERY CHURCH</span></span><span class="footer-muted">A PLACE TO BELONG, LIVE.</span></footer>
+  <footer class="site-footer container"><span>© EKKO · FAITH THROUGH HEARING.</span><span class="footer-muted">LIVE MOMENTS, SHARED TOGETHER.</span></footer>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
 </html>
