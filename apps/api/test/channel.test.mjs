@@ -61,5 +61,9 @@ test("replacing channel clears previously published and approved video",async()=
     assert.equal(dashboard.channelHandle,"@newchurch");
     assert.equal(dashboard.approvedVideoId,null);
     assert.deepEqual(dashboard.candidates,[]);
-  }finally{await new Promise(resolve=>app.close(resolve));await rm(dir,{recursive:true,force:true});}
+  }finally{
+    await app.syncYouTube().catch(()=>{}); // Drain asynchronous channel replacement discovery.
+    await new Promise(resolve=>app.close(resolve));
+    await rm(dir,{recursive:true,force:true,maxRetries:5,retryDelay:60});
+  }
 });
