@@ -72,8 +72,8 @@ export function createApp(options = {}) {
   const password = options.adminPassword ?? process.env.EKKO_ADMIN_PASSWORD;
   const secret = options.sessionSecret ?? process.env.EKKO_SESSION_SECRET;
   const secureCookies = options.secureCookies ?? process.env.NODE_ENV === "production";
-  const publicOrigin = options.publicOrigin || process.env.EKKO_PUBLIC_ORIGIN || null;
-  let siteOrigin = "";
+  const publicOrigin = options.publicOrigin || process.env.EKKO_PUBLIC_ORIGIN || "https://ekko.rw";
+  let siteOrigin = "https://ekko.rw";
   if (publicOrigin) {
     try {
       const parsed = new URL(publicOrigin);

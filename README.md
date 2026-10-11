@@ -25,7 +25,7 @@ Deploy as a **single Node.js process** behind HTTPS termination (for example, Ng
 
 - Set NODE_ENV=production so the admin session cookie uses Secure.
 - Set strong, unique EKKO_ADMIN_PASSWORD and EKKO_SESSION_SECRET values through your secrets manager.
-- Set EKKO_PUBLIC_ORIGIN to the public HTTPS origin to validate browser mutation requests and render absolute Open Graph/Twitter image URLs.
+- EKKO's public origin is **https://ekko.rw**. Set EKKO_PUBLIC_ORIGIN=https://ekko.rw in production (the same value is the default). The origin is used to validate browser mutation requests and render absolute Open Graph/Twitter image URLs and the canonical page URL. Override only for a real staging host.
 - Store event JSON on a persistent writable volume with restricted access; back it up.
 - Use a process supervisor. Do not run multiple writable instances using this JSON file; migrate to a transactional database before scaling.
 - Confirm the YouTube Live video is publicly available and allows embedding. The publisher remains responsible for starting and stopping the actual YouTube broadcast.

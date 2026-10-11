@@ -25,7 +25,7 @@ Changing the EKKO status does not control or verify the YouTube broadcast. Embed
 - Credentials remain server-side via environment variables.
 - Password and signature comparisons use timing-safe operations.
 - Sessions are signed with HMAC and carried in HttpOnly, SameSite=Strict cookies; in production the cookie is Secure.
-- Mutations check request origin; set EKKO_PUBLIC_ORIGIN to the public HTTPS address.
+- Mutations check request origin. EKKO's default public origin/canonical URL is https://ekko.rw; explicitly configure EKKO_PUBLIC_ORIGIN=https://ekko.rw in production. This origin is also used for Open Graph/Twitter sharing URLs.
 - A basic per-IP login attempt limit exists for a single Node.js process.
 - Browser code assigns event data as text rather than untrusted HTML.
 - CSP and browser security headers are applied.

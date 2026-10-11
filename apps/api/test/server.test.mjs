@@ -69,7 +69,8 @@ test("publishes a single YouTube event, protecting admin changes", async () => {
     const html = await response.text();
     assert.match(html, /EKKO/);
     assert.match(html, /Faith Through Hearing/);
-    assert.match(html, /\/assets\/social-card\.svg/);
+    assert.match(html, /https:\/\/ekko\.rw\/assets\/social-card\.svg/);
+    assert.match(html, /rel="canonical" href="https:\/\/ekko\.rw\/"/);
     assert.doesNotMatch(html, /__EKKO_SOCIAL_IMAGE__/);
     for (const asset of ["/assets/logo.svg", "/assets/logo-light.svg", "/assets/icon.svg", "/assets/social-card.svg"]) {
       const image = await fetch(base + asset);
@@ -95,6 +96,7 @@ test("renders absolute social image URLs from the configured public origin", asy
     const page = await response.text();
     assert.match(page, /https:\/\/ekko\.example\/assets\/social-card\.svg/);
     assert.match(page, /property="og:url" content="https:\/\/ekko\.example\/"/);
+    assert.match(page, /rel="canonical" href="https:\/\/ekko\.example\/"/);
   } finally {
     await new Promise(resolve => server.close(resolve));
   }
