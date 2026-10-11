@@ -25,8 +25,9 @@ self.addEventListener("fetch",event=>{
     return;
   }
   if(!ASSETS.includes(url.pathname))return;
-  event.respondWith(caches.match(request).then(cached=>cached||fetch(request).then(response=>{
+  // Network-first prevents stale app JavaScript or CSS after a new EKKO release.
+  event.respondWith(fetch(request).then(response=>{
     if(response.ok){const copy=response.clone();event.waitUntil(caches.open(CACHE).then(c=>c.put(request,copy)));}
     return response;
-  })));
+  }).catch(()=>caches.match(request)));
 });

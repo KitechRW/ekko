@@ -53,3 +53,13 @@ Brand assets include responsive SVG logos, a favicon and icon set, and /assets/s
 ## License
 
 Apache License 2.0. See [LICENSE](LICENSE).
+
+## Adaptive browser experience (mobile and desktop)
+
+- **Phone:** compact watch-first layout, safe-area spacing for display cutouts, large touch targets and a fixed quick-action dock for Watch, Theater, Share, and Install (where supported).
+- **Desktop / large screens:** widescreen broadcast area and distraction-free Theater view. The same control also attempts real browser fullscreen after a user gesture; the in-page theater view is the fallback. Press **F** for Theater and **Esc** to exit when the page has keyboard focus.
+- **Installability:** EKKO includes a PWA manifest, 192px/512px icons, a public viewer service worker, and an iOS Add to Home Screen hint. Availability depends on the browser and HTTPS deployment.
+- **Offline behavior:** only the public app shell is cached as a fallback. Live state requests, the administrator interface, WebSub callbacks and YouTube video delivery are **never cached**. Streaming still needs connectivity.
+- **Playback continuity:** switching layout and refreshing verified event metadata do not replace the iframe when the approved live Video ID stays unchanged. Browsers may require the viewer to tap Play for audio; autoplay cannot be guaranteed.
+
+These are browser enhancements, not separate native iOS/Android/TV applications. Real device and browser acceptance testing remains required.

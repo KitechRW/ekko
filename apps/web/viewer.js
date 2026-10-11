@@ -142,10 +142,20 @@ function setTheater(enabled) {
   if(enabled){
     theaterReturnFocus=document.activeElement;
     byId("theater-exit").focus({preventScroll:true});
-  }else if(theaterReturnFocus?.isConnected){
-    theaterReturnFocus.focus({preventScroll:true});
+    // User gesture permits true browser fullscreen on supported devices; CSS
+    // theater remains as a reliable fallback on iOS and restricted browsers.
+    const stage=byId("video-stage");
+    if(stage.requestFullscreen && !document.fullscreenElement){
+      stage.requestFullscreen({navigationUI:"hide"}).catch(()=>{});
+    }
+  }else{
+    if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});
+    if(theaterReturnFocus?.isConnected)theaterReturnFocus.focus({preventScroll:true});
   }
 }
+document.addEventListener("fullscreenchange",()=>{
+  if(theater && !document.fullscreenElement)setTheater(false);
+});
 byId("theater-button").addEventListener("click",()=>setTheater(!theater));
 byId("dock-theater").addEventListener("click",()=>setTheater(!theater));
 byId("theater-exit").addEventListener("click",()=>setTheater(false));
@@ -161,7 +171,7 @@ byId("dock-watch").addEventListener("click",event=>{
   event.preventDefault();
   if(theater)setTheater(false);
   byId("video-stage").scrollIntoView({block:"start",
-    behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth"});
+    behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
 });
 byId("share-button").addEventListener("click",shareBroadcast);
 byId("dock-share").addEventListener("click",shareBroadcast);

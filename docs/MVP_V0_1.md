@@ -56,3 +56,11 @@ The webhook must be accessible via HTTPS at https://ekko.rw/api/webhooks/youtube
 9. Confirm social image, favicon, HTTPS, persistence on restart, and all GitHub CI checks.
 
 Node.js tests mock the YouTube API, but production integration and live device playback still require hands-on acceptance.
+
+## Browser experience acceptance
+
+- On an iPhone-width screen, verify that the approved stream is prominently visible, actions fit in the safe area, the watch button scrolls to the player and Theater opens/closes without recreating the same live iframe.
+- On desktop/large-screen and landscape mobile, test responsive widescreen player, true fullscreen where supported, CSS fallback and keyboard controls.
+- Verify the EKKO PWA install prompt on an eligible Android browser and the manual Share → Add to Home Screen flow on iOS. Browser support varies.
+- Reload the installed viewer online and offline; when offline the app shell may display, but no stale live status should be represented as a new verified YouTube result.
+- Test phone-sized EKKO Studio login and approval cards; Studio is not stored in the offline cache.

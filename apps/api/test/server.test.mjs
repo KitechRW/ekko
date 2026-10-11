@@ -155,3 +155,53 @@ test("approval-gated EKKO discovery, live sync, branded assets, and WebSub signa
     await rm(dir,{recursive:true,force:true});
   }
 });
+
+test("installable app shell, theater actions and Studio remain separate",async()=>{
+  const dir=await mkdtemp(join(tmpdir(),"ekko-pwa-"));
+  const app=createApp({dataFile:join(dir,"data.json")});
+  app.listen(0,"127.0.0.1");
+  await once(app,"listening");
+  const base="http://127.0.0.1:"+app.address().port;
+  try{
+    let response=await fetch(base+"/");
+    const page=await response.text();
+    assert.match(page,/viewport-fit=cover/);
+    assert.match(page,/mobile-dock/);
+    assert.match(page,/theater-button/);
+    assert.match(page,/theater-exit/);
+    assert.match(page,/\/immersive\.css/);
+    response=await fetch(base+"/viewer.js");
+    const viewer=await response.text();
+    assert.match(viewer,/requestFullscreen/);
+    assert.match(viewer,/lastPlayerId/);
+    assert.match(viewer,/beforeinstallprompt/);
+    assert.match(viewer,/serviceWorker\.register/);
+    response=await fetch(base+"/immersive.css");
+    assert.equal(response.status,200);
+    assert.match(await response.text(),/cinema-mode/);
+    response=await fetch(base+"/sw.js");
+    assert.equal(response.status,200);
+    const worker=await response.text();
+    assert.match(worker,/ekko-public-shell-v1/);
+    assert.match(worker,/url\.pathname\.startsWith\("\/api\/"\)/);
+    assert.match(worker,/url\.pathname\.startsWith\("\/admin"\)/);
+    const manifest=await (await fetch(base+"/assets/site.webmanifest")).json();
+    assert.equal(manifest.display,"standalone");
+    assert.ok(manifest.icons.find(icon=>icon.sizes==="192x192"));
+    assert.ok(manifest.icons.find(icon=>icon.sizes==="512x512"));
+    for(const name of ["icon-192.png","icon-512.png"]){
+      response=await fetch(base+"/assets/"+name);
+      assert.equal(response.status,200);
+      assert.match(response.headers.get("content-type"),/image\/png/);
+      const b=new Uint8Array(await response.arrayBuffer());
+      assert.deepEqual([...b.slice(0,4)],[137,80,78,71]);
+    }
+    response=await fetch(base+"/admin");
+    const admin=await response.text();
+    assert.match(admin,/EKKO Studio/);
+    assert.doesNotMatch(admin,/\/sw\.js/);
+  }finally{
+    await new Promise(resolve=>app.close(resolve));
+    await rm(dir,{recursive:true,force:true});
+  }
+});
