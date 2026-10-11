@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="t d">
+<title id="t">EKKO — Faith Through Hearing.</title><desc id="d">EKKO Christian live streaming brand share card</desc>
+<defs>
+<linearGradient id="sky" x2="0" y2="1"><stop stop-color="#d7eafd"/><stop offset=".48" stop-color="#f9fcff"/><stop offset=".78" stop-color="#dcecff"/><stop offset="1" stop-color="#88bfff"/></linearGradient>
+<radialGradient id="glow"><stop stop-color="#fff" stop-opacity=".96"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+<linearGradient id="ocean" x2="0" y2="1"><stop stop-color="#a1d9ff"/><stop offset=".45" stop-color="#1975d5"/><stop offset="1" stop-color="#082452"/></linearGradient>
+<linearGradient id="arc" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#0052d4"/><stop offset=".54" stop-color="#1787fb"/><stop offset="1" stop-color="#08d4ff"/></linearGradient>
+</defs>
+<rect width="1200" height="630" fill="url(#sky)"/>
+<ellipse cx="150" cy="360" rx="350" ry="270" fill="url(#glow)"/>
+<path d="M 880 -60 C 1100 90 1140 260 1190 410" stroke="#75baf5" opacity=".16" stroke-width="95" fill="none"/>
+<path d="M 940 -60 C 1140 120 1160 255 1205 390" stroke="#3d95e2" opacity=".15" stroke-width="50" fill="none"/>
+<path d="M 0 508 C 210 385 450 550 665 490 S 1015 380 1200 500 L 1200 630 L 0 630 Z" fill="url(#ocean)" opacity=".82"/>
+<path d="M 0 548 C 270 475 450 610 665 562 S 990 500 1200 535 L1200 630 H0 Z" fill="#1354a8" opacity=".65"/>
+<path d="M 0 540 C 235 455 375 565 600 558 S 930 465 1200 535" fill="none" stroke="#edfaff" stroke-width="2.5" opacity=".8"/>
+<path d="M 0 576 C 330 540 425 625 705 587 S 998 542 1200 582" fill="none" stroke="#8bd4ff" stroke-width="2" opacity=".65"/>
+<g transform="translate(140 125) scale(.92)"><text x="8" y="190" font-family="Arial,Helvetica,sans-serif" font-size="205" font-weight="900" letter-spacing="4" fill="#081c40">EKKO</text>
+<g fill="none" stroke="url(#arc)" stroke-width="20" stroke-linecap="round"><path d="M 695 76 Q 753 121 695 167"/><path d="M 730 34 Q 830 121 730 210"/><path d="M 773 -3 Q 920 121 773 249"/></g></g>
+<text x="600" y="404" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="52" font-weight="500" letter-spacing=".25" fill="#0b2042">Faith Through Hearing.</text>
+<path d="M 255 453 h85 M 860 453 h85" stroke="#617da1" stroke-width="1.5"/><text x="600" y="466" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="21" letter-spacing="8" fill="#5f718d">CHRISTIAN LIVE STREAMING</text>
+</svg>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="260" viewBox="0 0 980 260" role="img" aria-label="EKKO broadcast logo">
+<defs><linearGradient id="wave" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#0756cf"/><stop offset=".55" stop-color="#1776f6"/><stop offset="1" stop-color="#04d1f7"/></linearGradient></defs>
+<text x="4" y="202" font-family="Arial,Helvetica,sans-serif" font-weight="900" font-size="213" letter-spacing="3" fill="#f7faff">EKKO</text>
+<g fill="none" stroke="url(#wave)" stroke-width="19" stroke-linecap="round"><path d="M 728 83 Q 785 131 728 176"/><path d="M 765 47 Q 856 129 765 213"/><path d="M 807 13 Q 939 128 807 246"/></g>
+</svg>

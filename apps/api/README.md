@@ -1,13 +1,7 @@
 # EKKO API
 
-Planned responsibilities:
+v0.1 dependency-free Node.js HTTP service, started with npm start. Serves public and admin pages, validates YouTube URLs, provides single-event JSON storage, and protects mutation endpoints with a signed admin session.
 
-- organization and membership authorization;
-- stream-source configuration;
-- program and schedule APIs;
-- active live-session resolution;
-- realtime presence, chat, reactions, and program updates;
-- moderation;
-- aggregate live metrics.
+See docs/MVP_V0_1.md for endpoints, limitations, security and deployment details.
 
-The API must enforce tenant isolation server-side.
+Future work includes organization-scoped records/authorization, HLS stream sources, realtime presence, chat, reactions and moderation.

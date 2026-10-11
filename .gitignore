@@ -11,6 +11,7 @@ coverage/
 .vscode/
 *.log
 *.local
+data/
 android/.gradle/
 android/local.properties
 ios/Pods/
