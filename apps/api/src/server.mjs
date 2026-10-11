@@ -34,6 +34,19 @@ const eq = (x, y) => {
   const b = Buffer.isBuffer(y) ? y : Buffer.from(y);
   return a.length === b.length && timingSafeEqual(a,b);
 };
+const escapeMeta = value => String(value||"")
+  .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+  .replace(/"/g,"&quot;").replace(/'/g,"&#39;")
+  .replace(/[\r\n]+/g," ").slice(0,250);
+function viewerShareMetadata(event){
+  if(!event||!["scheduled","live"].includes(event.status))
+    return {title:"EKKO — Faith Through Hearing.",
+      description:"Experience church services and Christian live events together, from wherever you are."};
+  const title=String(event.title||"Live gathering").trim();
+  const church=String(event.churchName||"EKKO").trim();
+  return {title:title+" — "+church+" | EKKO",
+    description:title+" with "+church+". Join the "+(event.status==="live"?"live":"upcoming")+" broadcast on EKKO."};
+}
 const send = (res, status, data, headers = {}) => {
   res.writeHead(status, { "Content-Type":"application/json; charset=utf-8",
     "Cache-Control":"no-store", ...headers });
@@ -284,9 +297,14 @@ export function createApp(options={}) {
       if(req.method==="GET" && STATIC.has(path)){
         const [asset,type]=STATIC.get(path),data=await readFile(join(ROOT,asset));
         res.writeHead(200,{"Content-Type":type,"Cache-Control":"no-cache"});
-        if(path==="/")return res.end(data.toString("utf8")
-          .replaceAll("__EKKO_SITE_URL__",siteOrigin+"/")
-          .replaceAll("__EKKO_SOCIAL_IMAGE__",siteOrigin+"/assets/social-card.png"));
+        if(path==="/"){
+          const meta=viewerShareMetadata(published(await readState()));
+          return res.end(data.toString("utf8")
+            .replaceAll("__EKKO_SITE_URL__",siteOrigin+"/")
+            .replaceAll("__EKKO_SOCIAL_IMAGE__",siteOrigin+"/assets/social-card.png")
+            .replaceAll("__EKKO_SHARE_TITLE__",escapeMeta(meta.title))
+            .replaceAll("__EKKO_SHARE_DESCRIPTION__",escapeMeta(meta.description)));
+        }
         return res.end(data);
       }
       return send(res,404,{error:"Not found."});

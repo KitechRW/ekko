@@ -64,3 +64,7 @@ Apache License 2.0. See [LICENSE](LICENSE).
 - **Playback continuity:** switching layout and refreshing verified event metadata do not replace the iframe when the approved live Video ID stays unchanged. Browsers may require the viewer to tap Play for audio; autoplay cannot be guaranteed.
 
 These are browser enhancements, not separate native iOS/Android/TV applications. Real device and browser acceptance testing remains required.
+
+### In-page event sharing
+
+The public viewer keeps visitors on EKKO. There is no outgoing **Watch on YouTube** button. For the approved Upcoming or Live broadcast, a single icon sits on the right side of the event information and shares the **event title, church name and EKKO link** (or copies all three when Web Share is unavailable). The redundant Share button in the mobile dock is removed. EKKO also renders event-and-church Open Graph / Twitter title and description dynamically for server-served event links; the GitHub Pages UI demo remains a static simulation.

@@ -2,7 +2,7 @@ const byId=id=>document.getElementById(id);
 const dom=Object.fromEntries([
   "event-title","event-description","program-title","church-name","status-chip",
   "event-clock","stage-eyebrow","stage-title","stage-description","poster-stage",
-  "poster-image","player-host","video-badge","youtube-link","header-status",
+  "poster-image","player-host","video-badge","header-status",
   "broadcast-kicker","countdown","count-days","count-hours","count-minutes","count-seconds"
 ].map(id=>[id,byId(id)]));
 let previousFingerprint=null;
@@ -51,8 +51,7 @@ function render(event) {
   dom["poster-stage"].hidden=live;
   dom["player-host"].hidden=!live;
   dom["video-badge"].hidden=!live;
-  dom["youtube-link"].hidden=!event?.youtubeUrl;
-  if(event?.youtubeUrl)dom["youtube-link"].href=event.youtubeUrl;
+  byId("share-button").hidden=!event||!["scheduled","live"].includes(event.status);
   if(live)video(event.youtubeVideoId);
   else if(lastPlayerId){
     dom["player-host"].replaceChildren();lastPlayerId=null;
@@ -121,14 +120,33 @@ function notify(text){
   const toast=byId("toast");toast.textContent=text;toast.classList.add("visible");
   clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove("visible"),3500);
 }
+function shareContent(event, url) {
+  const title=String(event?.title||"EKKO — Faith Through Hearing.").trim();
+  const church=String(event?.churchName||"EKKO").trim();
+  return {title:title+" — "+church,text:title+"\n"+church,url,
+    copied:title+"\n"+church+"\n"+url};
+}
 async function shareBroadcast(){
-  const url=location.href;
+  if(!currentEvent||!["scheduled","live"].includes(currentEvent.status))return;
+  const url=location.origin+location.pathname;
+  const message=shareContent(currentEvent,url);
   try{
-    if(navigator.share)await navigator.share({title:currentEvent?.title||"EKKO — Faith Through Hearing.",url});
-    else if(navigator.clipboard){await navigator.clipboard.writeText(url);notify("Link copied. Share this moment.");}
-    else notify("Share this link: "+url);
+    if(navigator.share){
+      await navigator.share({title:message.title,text:message.text,url:message.url});
+    }else if(navigator.clipboard){
+      await navigator.clipboard.writeText(message.copied);
+      notify("Event, church and EKKO link copied.");
+    }else{
+      const input=document.createElement("textarea");
+      input.value=message.copied;input.readOnly=true;
+      input.style.position="fixed";input.style.opacity="0";
+      document.body.append(input);input.select();
+      const copied=document.execCommand("copy");input.remove();
+      notify(copied?"Event, church and EKKO link copied.":"Share: "+message.copied);
+    }
   }catch(e){if(e.name!=="AbortError")notify("Sharing wasn't available. Please try again.");}
 }
+
 let theater=false;
 let theaterReturnFocus=null;
 function setTheater(enabled) {
@@ -174,7 +192,6 @@ byId("dock-watch").addEventListener("click",event=>{
     behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
 });
 byId("share-button").addEventListener("click",shareBroadcast);
-byId("dock-share").addEventListener("click",shareBroadcast);
 
 // Installability is browser-controlled; Safari on iOS requires Share → Add to Home Screen.
 let installPrompt=null;

@@ -125,6 +125,21 @@ test("approval-gated EKKO discovery, live sync, branded assets, and WebSub signa
     assert.equal(validWebSubSignature(signingSecret,Buffer.from(xml),sig),true);
     r=await fetch(base+"/api/webhooks/youtube",{method:"POST",body:xml,headers:{"X-Hub-Signature-256":sig}});
     assert.equal(r.status,204);
+    // Approved upcoming/live content appears in share metadata for link previews.
+    // Both event title and church name are included.
+    r=await req("/");
+    let shareHtml=await r.text();
+    assert.match(shareHtml,/Sunday Gathering — My Church on YouTube \| EKKO/);
+    assert.match(shareHtml,/Join the live broadcast on EKKO/);
+    r=await req("/api/admin/status","PUT",{status:"scheduled"},headers);
+    r=await req("/");
+    shareHtml=await r.text();
+    assert.match(shareHtml,/Join the upcoming broadcast on EKKO/);
+    r=await req("/api/admin/status","PUT",{status:"ended"},headers);
+    r=await req("/");
+    shareHtml=await r.text();
+    assert.match(shareHtml,/EKKO — Faith Through Hearing\./);
+    assert.doesNotMatch(shareHtml,/Sunday Gathering — My Church on YouTube \| EKKO/);
     r=await req("/api/admin/withdraw","POST",{},headers);
     assert.equal(r.status,200);
     r=await req("/api/event");
@@ -138,6 +153,10 @@ test("approval-gated EKKO discovery, live sync, branded assets, and WebSub signa
     assert.match(html,/https:\/\/ekko\.rw\/assets\/social-card\.png/);
     assert.match(html,/rel="canonical" href="https:\/\/ekko\.rw\/"/);
     assert.match(html,/poster-stage/);
+    assert.match(html,/id="share-button"/);
+    assert.doesNotMatch(html,/id="youtube-link"|Watch on YouTube|Share event<\/button>/);
+    assert.doesNotMatch(html,/id="dock-share"/);
+    assert.match(html,/EKKO — Faith Through Hearing\./);
     r=await req("/admin");
     assert.match(await r.text(),/Welcome back/);
     for(const path of ["/styles.css","/studio.css","/viewer.js","/admin.js"]){
