@@ -5,6 +5,8 @@
   const KEY="ekko-pages-demo-state-v2", LOGIN="ekko-pages-studio-session";
   const videos=["DemoLiveA01","DemoLiveB02","DemoLiveC03"];
   const channelId="UC"+"E".repeat(22);
+  const secondChannel="UC"+"Z".repeat(22);
+  const profiles=[{channelId,title:"EKKO Demo Church",handle:"@ekkodemo",description:"Demo church channel",avatarUrl:"",url:"https://www.youtube.com/channel/"+channelId},{channelId:secondChannel,title:"Sample Worship Community",handle:"@sampleworship",description:"Another sample channel",avatarUrl:"",url:"https://www.youtube.com/channel/"+secondChannel}];
   const isoFromNow=hours=>new Date(Date.now()+hours*3600000).toISOString();
   const candidate=(i,title,status,when)=>({
     id:"featured",channelId,youtubeVideoId:videos[i],youtubeUrl:"https://www.youtube.com/",
@@ -16,7 +18,7 @@
     const a=candidate(0,"Sunday Worship Celebration","scheduled",isoFromNow(2));
     const b=candidate(1,"Evening of Prayer","scheduled",isoFromNow(52));
     const c=candidate(2,"Last Sunday's Gathering","ended",isoFromNow(-160));
-    return {churchName:"EKKO Demo Church",channelId,approvedVideoId:videos[0],event:a,candidates:[a,b,c],
+    return {churchName:"EKKO Demo Church",channelId,channelHandle:"@ekkodemo",channelAvatarUrl:"",approvedVideoId:videos[0],event:a,candidates:[a,b,c],
       apiConfigured:true,lastDiscoveryAt:new Date().toISOString(),overrideStatus:null};
   };
   function load(){
@@ -65,18 +67,39 @@
     }
     if(!auth)return response({error:"Open the Studio preview to explore the dashboard."},401);
     if(path==="/api/admin/dashboard")return response({...s,event:publicEvent(s)});
+    if(path.startsWith("/api/admin/channel/search?")&&method==="GET"){
+      const search=new URLSearchParams(path.split("?")[1]||"").get("q")||"";
+      const clean=search.toLowerCase().trim();
+      if(!clean)return response({error:"Enter a channel name or @handle."},400);
+      let matches=profiles.filter(p=>p.title.toLowerCase().includes(clean)||
+        p.handle.toLowerCase().includes(clean)||clean===p.channelId.toLowerCase()||
+        clean.endsWith("/"+p.handle.toLowerCase())||
+        clean.endsWith("/"+p.channelId.toLowerCase()));
+      // The demo remains explorable even when visitors type a real channel name.
+      if(matches.length===0 && !clean.startsWith("@"))matches=profiles;
+      return response({channels:matches,queryType:clean.startsWith("@")?"handle":"name"});
+    }
     if(path==="/api/admin/channel"&&method==="PUT"){
-      const churchName=String(data.churchName||"").trim(),channelId=String(data.channelId||"").trim();
-      if(!churchName||!/^(UC)[A-Za-z0-9_-]{22}$/.test(channelId))return response({error:"Enter a church name and a valid-looking channel ID."},400);
-      if(channelId!==s.channelId){
-        const d=fresh();d.channelId=channelId;d.churchName=churchName;
-        d.candidates=[];d.approvedVideoId=null;d.event=null;save(d);
-      }else{ s.churchName=churchName;if(s.event)s.event.churchName=churchName;save(s); }
-      return response({ok:true});
+      const selected=profiles.find(p=>p.channelId===data.channelId);
+      if(!selected)return response({error:"Choose a sample YouTube channel from search results."},404);
+      if(selected.channelId!==s.channelId){
+        save({churchName:selected.title,channelId:selected.channelId,channelHandle:selected.handle,
+          channelAvatarUrl:selected.avatarUrl,approvedVideoId:null,event:null,candidates:[],
+          apiConfigured:true,lastDiscoveryAt:null,overrideStatus:null});
+      }else{
+        s.churchName=selected.title;s.channelHandle=selected.handle;
+        s.channelAvatarUrl=selected.avatarUrl;
+        if(s.event)s.event.churchName=selected.title;save(s);
+      }
+      return response({ok:true,channel:selected});
     }
     if(path==="/api/admin/scan"&&method==="POST"){
       s.lastDiscoveryAt=new Date().toISOString();
-      if(s.candidates.length&&s.candidates.length===3){
+      if(s.channelId&&!s.candidates.length){
+        const d=candidate(0,"Newly scheduled demo event","scheduled",isoFromNow(3));
+        d.channelId=s.channelId;d.churchName=s.churchName;
+        s.candidates=[d];
+      }else if(s.candidates.length===3){
         const d=candidate(1,"Wednesday Prayer Gathering","scheduled",isoFromNow(80));
         d.youtubeVideoId="DemoLiveD04";s.candidates.push(d);
       }

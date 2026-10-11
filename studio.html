@@ -29,6 +29,9 @@
 </aside>
   <div class="ambient ambient-studio"></div>
 
+
+  <div class="ambient ambient-studio"></div>
+
   <main id="login-screen" class="login-layout" hidden>
     <section class="login-story">
       <a href="./index.html" class="studio-logo" aria-label="EKKO home"><img src="./apps/web/assets/logo-light.svg" alt="EKKO" width="190"></a>
@@ -47,7 +50,7 @@
         <h2>Welcome back.</h2>
         <p>Sign in to manage your church's live broadcasting experience.</p>
         <form id="login-form" class="studio-form">
-          <label for="password">Preview access · no password needed</label>
+          <label for="password">Administrator password</label>
           <div class="password-wrap"><input id="password" type="password" value="preview-access" readonly aria-label="Preview access automatically provided">
             <button id="toggle-password" type="button" aria-label="Show or hide password">Show</button>
           </div>
@@ -76,17 +79,30 @@
       <p id="admin-feedback" class="studio-feedback admin-feedback" role="status" aria-live="polite"></p>
       <div class="studio-workspace">
         <section class="studio-panel channel-panel">
-          <div class="panel-header"><div class="panel-icon">01</div><div><div class="micro-label">CHANNEL SETUP</div><h2>Connect your church</h2></div><span id="channel-state" class="mini-status">NOT CONNECTED</span></div>
-          <p class="panel-hint">Configure the YouTube channel once. EKKO discovers its public upcoming and live broadcasts—no Video ID entry required.</p>
-          <form id="channel-form" class="studio-form">
-            <label for="churchName">Church or organization</label>
-            <input id="churchName" type="text" maxlength="100" placeholder="Your church name" autocomplete="organization" required>
-            <label for="channelId">YouTube Channel ID</label>
-            <input id="channelId" type="text" maxlength="24" placeholder="UCxxxxxxxxxxxxxxxxxxxxxx" spellcheck="false" required>
-            <p class="field-hint">Use the permanent Channel ID starting with UC, not the @handle or channel URL.</p>
-            <button id="save-channel" class="studio-button primary" type="submit">Save channel configuration <span aria-hidden="true">→</span></button>
-          </form>
-          <div class="connection-footer"><span class="status-dot"></span><span id="connection-details">YouTube discovery is not configured yet.</span></div>
+          <div class="panel-header"><div class="panel-icon">01</div><div><div class="micro-label">CHANNEL CONNECTION</div><h2>Your YouTube channel</h2></div><span id="channel-state" class="mini-status">NOT CONNECTED</span></div>
+          <p class="panel-hint">One church, one channel. Find it using its name, @handle, or YouTube URL. EKKO identifies the Channel ID automatically.</p>
+          <div id="channel-connected" class="connected-channel" hidden>
+            <div class="connected-channel-main">
+              <div class="channel-avatar" id="connected-avatar"><img id="connected-avatar-img" alt="" hidden><span id="connected-avatar-placeholder">▶</span></div>
+              <div class="channel-profile-copy"><strong id="connected-name"></strong><small id="connected-handle"></small><span class="channel-linked"><span class="signal-led"></span> Connected to EKKO</span></div>
+            </div>
+            <button id="change-channel" class="studio-button secondary" type="button">Replace channel ↗</button>
+            <p class="field-hint">You can replace this channel whenever needed. EKKO will ask before clearing its approved broadcast and discoveries.</p>
+          </div>
+          <div id="channel-search-panel">
+            <form id="channel-form" class="studio-form">
+              <label for="channel-search">Find your church's YouTube channel</label>
+              <div class="channel-search-row">
+                <input id="channel-search" type="search" maxlength="150" placeholder="@YourChurch or channel name" spellcheck="false" autocomplete="off" required>
+                <button id="find-channel" class="studio-button primary" type="submit">Search <span aria-hidden="true">→</span></button>
+              </div>
+              <p class="field-hint">One search field for both channel names and @handles. You'll confirm the correct channel before connecting.</p>
+            </form>
+            <div id="channel-search-status" class="channel-search-status" role="status" aria-live="polite"></div>
+            <div id="channel-search-results" class="channel-search-results" aria-label="Matching YouTube channels"></div>
+            <button id="cancel-channel-change" class="studio-button secondary channel-cancel" type="button" hidden>Cancel and keep current channel</button>
+          </div>
+          <div class="connection-footer"><span class="status-dot"></span><span id="connection-details">Search for a channel to start discovery.</span></div>
         </section>
         <section class="studio-panel featured-panel">
           <div class="panel-header"><div class="panel-icon">02</div><div><div class="micro-label">PUBLIC BROADCAST</div><h2>On EKKO right now</h2></div><span id="featured-status" class="mini-status">NONE APPROVED</span></div>
