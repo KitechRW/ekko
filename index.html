@@ -7,11 +7,11 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="EKKO">
   <meta name="theme-color" content="#080c18">
-  <meta name="description" content="EKKO — Faith Through Hearing. Experience church services and Christian live events together, from wherever you are.">
+  <meta name="description" content="Review EKKO with sample broadcasts.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="EKKO">
-  <meta property="og:title" content="EKKO — Faith Through Hearing.">
-  <meta property="og:description" content="A beautiful place to experience church and Christian live events together.">
+  <meta property="og:title" content="EKKO Interactive Preview">
+  <meta property="og:description" content="Review EKKO with sample broadcasts.">
   <link rel="canonical" href="https://kitechrw.github.io/ekko/">
   <meta property="og:url" content="https://kitechrw.github.io/ekko/">
   <meta property="og:image" content="https://kitechrw.github.io/ekko/apps/web/assets/social-card.png">
@@ -20,23 +20,22 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="EKKO — Faith Through Hearing.">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="EKKO — Faith Through Hearing.">
+  <meta name="twitter:title" content="EKKO Interactive Preview">
   <meta name="twitter:image" content="https://kitechrw.github.io/ekko/apps/web/assets/social-card.png">
-  <title>EKKO / Interactive UI Preview</title>
+  <title>EKKO Interactive Preview</title>
   <link rel="icon" type="image/svg+xml" href="./apps/web/assets/icon.svg">
   <link rel="icon" type="image/png" sizes="256x256" href="./apps/web/assets/icon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="./apps/web/assets/apple-touch-icon.png">
   <link rel="manifest" href="./preview.webmanifest">
   <link rel="stylesheet" href="./apps/web/styles.css">
   <link rel="stylesheet" href="./apps/web/immersive.css">
-  <link rel="stylesheet" href="./preview.css">
-  
   <script src="./preview-api.js" defer></script>
   <script src="./preview-viewer.js" defer></script>
+  <link rel="stylesheet" href="./preview.css">
   <link rel="preload" href="./apps/web/assets/logo-light.svg" as="image">
 </head>
 <body class="viewer-body preview-page">
-  <aside class="preview-bar" aria-label="EKKO interactive design preview">
+<aside class="preview-bar" aria-label="EKKO interactive design preview">
   <div class="preview-brand"><span class="preview-dot"></span><strong>DESIGN PREVIEW</strong><span class="preview-soft">Sample data · no real livestream</span></div>
   <div class="preview-actions"><span class="preview-actions-label">VIEW STATE</span>
     <button type="button" data-preview-state="scheduled">Upcoming</button>
@@ -49,7 +48,7 @@
   <div class="ambient"></div>
   <header class="site-header container">
     <a class="brand" href="./index.html" aria-label="EKKO home"><img class="brand-image" src="./apps/web/assets/logo-light.svg" alt="EKKO" width="174" height="47"></a>
-    <div class="header-right"><span class="header-wordmark">FAITH THROUGH HEARING.</span><span id="header-status" class="header-status"><span class="signal-led"></span> BROADCAST HUB</span></div>
+    <div class="header-right"><span class="header-wordmark">FAITH THROUGH HEARING.</span></div>
   </header>
   <main class="container viewer-main">
     <section class="viewer-hero">
@@ -78,13 +77,13 @@
           </div>
         </div>
         <div id="player-host" class="player-host" hidden></div>
-        <span id="video-badge" class="video-badge" hidden><span class="signal-led"></span> LIVE NOW</span>
+        
         <button id="theater-exit" class="theater-exit" type="button" aria-label="Exit theater view" hidden>✕ <span>Exit theater</span></button>
         <div id="cinema-caption" class="cinema-caption" hidden aria-hidden="true"><span class="micro-label">EKKO / FAITH THROUGH HEARING.</span><strong id="cinema-title">The live experience</strong></div>
       </div>
       <div class="broadcast-bar">
         <div class="broadcast-details">
-          <div class="broadcast-state"><span id="status-chip" class="status-chip" role="status">AWAITING NEXT EVENT</span><span id="event-clock" class="event-clock"></span></div>
+          <div class="broadcast-state"><span id="status-chip" class="status-chip" role="status"><span id="status-signal" class="live-signal" aria-hidden="true" hidden></span><span id="status-text">AWAITING NEXT EVENT</span></span><span id="event-clock" class="event-clock"></span></div>
           <h2 id="program-title">The next moment starts here.</h2>
           <div class="church-line"><span class="church-avatar"><img src="./apps/web/assets/icon.svg" alt=""></span><span id="church-name">EKKO · Faith Through Hearing.</span></div>
         </div>
@@ -115,7 +114,7 @@
     <button id="dock-theater" class="dock-control" type="button" aria-pressed="false" aria-label="Switch to immersive theater view"><span class="dock-symbol" aria-hidden="true">⛶</span><span>Theater</span></button>
     <button id="install-button" class="dock-control" type="button" aria-label="Add EKKO to home screen" hidden><span class="dock-symbol" aria-hidden="true">↓</span><span>Install</span></button>
   </nav>
-  <footer class="site-footer container"><span>© EKKO · FAITH THROUGH HEARING.</span><span class="footer-muted">LIVE MOMENTS, SHARED TOGETHER.</span></footer>
+  <footer class="site-footer container">© 2026 EKKO</footer>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
 </html>
