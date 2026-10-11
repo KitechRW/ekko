@@ -45,6 +45,8 @@ function video(id){
 }
 function render(event) {
   currentEvent=event;
+  document.body.classList.toggle("has-event",Boolean(event));
+  byId("cinema-title").textContent=event?.title||"Faith Through Hearing.";
   const live=event?.status==="live" && /^[A-Za-z0-9_-]{11}$/.test(event.youtubeVideoId||"");
   dom["poster-stage"].hidden=live;
   dom["player-host"].hidden=!live;
@@ -119,14 +121,77 @@ function notify(text){
   const toast=byId("toast");toast.textContent=text;toast.classList.add("visible");
   clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove("visible"),3500);
 }
-byId("share-button").addEventListener("click",async()=>{
+async function shareBroadcast(){
   const url=location.href;
   try{
     if(navigator.share)await navigator.share({title:currentEvent?.title||"EKKO — Faith Through Hearing.",url});
     else if(navigator.clipboard){await navigator.clipboard.writeText(url);notify("Link copied. Share this moment.");}
     else notify("Share this link: "+url);
   }catch(e){if(e.name!=="AbortError")notify("Sharing wasn't available. Please try again.");}
+}
+let theater=false;
+let theaterReturnFocus=null;
+function setTheater(enabled) {
+  if (enabled===theater) return;
+  theater=enabled;
+  document.body.classList.toggle("cinema-mode",enabled);
+  byId("theater-exit").hidden=!enabled;
+  byId("cinema-caption").hidden=!enabled;
+  byId("theater-button").setAttribute("aria-pressed",String(enabled));
+  byId("dock-theater").setAttribute("aria-pressed",String(enabled));
+  if(enabled){
+    theaterReturnFocus=document.activeElement;
+    byId("theater-exit").focus({preventScroll:true});
+  }else if(theaterReturnFocus?.isConnected){
+    theaterReturnFocus.focus({preventScroll:true});
+  }
+}
+byId("theater-button").addEventListener("click",()=>setTheater(!theater));
+byId("dock-theater").addEventListener("click",()=>setTheater(!theater));
+byId("theater-exit").addEventListener("click",()=>setTheater(false));
+document.addEventListener("keydown",event=>{
+  if(event.key==="Escape" && theater){setTheater(false);return;}
+  if(event.key.toLowerCase()==="f" && !event.altKey && !event.ctrlKey && !event.metaKey &&
+    !["INPUT","TEXTAREA","SELECT"].includes(document.activeElement?.tagName) &&
+    !document.activeElement?.isContentEditable){
+    event.preventDefault();setTheater(!theater);
+  }
 });
+byId("dock-watch").addEventListener("click",event=>{
+  event.preventDefault();
+  if(theater)setTheater(false);
+  byId("video-stage").scrollIntoView({block:"start",
+    behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth"});
+});
+byId("share-button").addEventListener("click",shareBroadcast);
+byId("dock-share").addEventListener("click",shareBroadcast);
+
+// Installability is browser-controlled; Safari on iOS requires Share → Add to Home Screen.
+let installPrompt=null;
+const installButton=byId("install-button");
+const isStandalone=()=>window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+function updateInstallUI(){
+  const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+  installButton.hidden=isStandalone()||(!installPrompt&&!isIOS);
+}
+window.addEventListener("beforeinstallprompt",event=>{
+  event.preventDefault();installPrompt=event;updateInstallUI();
+});
+window.addEventListener("appinstalled",()=>{installPrompt=null;updateInstallUI();});
+installButton.addEventListener("click",async()=>{
+  if(installPrompt){
+    const prompt=installPrompt;installPrompt=null;
+    await prompt.prompt();
+    await prompt.userChoice;
+    updateInstallUI();
+  }else notify("In Safari, tap Share, then Add to Home Screen.");
+});
+updateInstallUI();
+if("serviceWorker" in navigator && location.protocol==="https:"){
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("/sw.js").catch(()=>{});
+  });
+}
 render(null);
 refresh();
 setInterval(updateCountdown,1000);

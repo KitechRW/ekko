@@ -5,3 +5,25 @@
 @media(max-width:1070px){.candidate-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.studio-topbar-tag{display:none}}
 @media(max-width:850px){.login-layout{display:block}.login-story{min-height:300px;padding:24px}.studio-logo,.studio-logo img{width:150px}.story-content{margin:22px 0 0}.story-content h1{font-size:35px;margin:14px 0 10px}.story-content p{font-size:13px}.story-visual{right:-150px;bottom:-220px}.login-story-bottom{display:none}.login-form-area{padding:28px 20px 55px}.studio-heading-row{display:block}.studio-indicator{display:inline-flex;margin-top:19px}.studio-workspace{grid-template-columns:1fr}.queue-top{align-items:flex-start;flex-direction:column}}
 @media(max-width:600px){.login-card{padding:23px 20px}.studio-topbar{padding:17px 0}.studio-topbar .brand-image{width:113px}.studio-topbar-actions{gap:5px}.studio-topbar-actions .studio-outline{font-size:10px;padding:8px;min-height:34px}.studio-main{padding-top:36px}.studio-intro h1{font-size:42px}.studio-panel{padding:21px 18px}.panel-header{gap:10px}.panel-icon{width:36px;height:36px}.panel-header h2{font-size:18px}.mini-status{font-size:8px;padding:7px 8px}.queue-panel{margin-top:16px}.candidate-grid{grid-template-columns:1fr}.candidate-cover{height:190px}.studio-footer{flex-direction:column;align-items:flex-start}}
+
+/* App-like Studio on phones and large touch displays. */
+@media(max-width:850px){
+ .studio-body .login-story{min-height:238px;max-height:37svh}
+ .studio-body .story-content h1{font-size:clamp(25px,5vw,34px);max-width:510px}
+ .studio-body .story-content p{display:none}
+ .studio-body .login-card{box-shadow:0 28px 80px rgba(0,0,0,.3)}
+ .studio-body .studio-topbar{position:sticky;top:0;z-index:15;background:rgba(8,14,26,.93);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);padding-top:calc(14px + env(safe-area-inset-top))}
+}
+@media(max-width:600px){
+ .studio-body .login-story{min-height:205px;padding:calc(20px + env(safe-area-inset-top)) 23px 18px}
+ .studio-body .story-content{margin:15px 0 0}
+ .studio-body .story-content h1{font-size:27px;line-height:1.15;margin:9px 0 0}
+ .studio-body .login-form-area{padding:18px 16px calc(30px + env(safe-area-inset-bottom))}
+ .studio-body .login-card{border-radius:20px;width:100%}
+ .studio-body .login-icon{width:46px;height:46px;margin-bottom:15px}
+ .studio-body .login-card h2{font-size:32px}
+ .studio-body .studio-form input,.studio-body .featured-controls select{min-height:50px;font-size:16px}
+ .studio-body .studio-button,.studio-body .studio-outline{touch-action:manipulation}
+ .studio-body .candidate-actions .studio-button,.studio-body .candidate-actions .studio-outline{min-height:46px}
+ .studio-body .studio-main{padding-bottom:env(safe-area-inset-bottom)}
+}
