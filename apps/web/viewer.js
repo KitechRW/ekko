@@ -68,6 +68,9 @@ function render(event) {
     dom["program-title"].textContent="The next moment starts here.";
     dom["church-name"].textContent="EKKO · Faith Through Hearing.";
     dom["status-text"].textContent="AWAITING NEXT EVENT";
+    dom["status-text"].hidden=false;
+    dom["status-signal"].hidden=true;
+    dom["status-chip"].setAttribute("aria-label","Awaiting next broadcast");
     dom["event-clock"].textContent="";
     image(null);
     updateCountdown();
@@ -81,8 +84,10 @@ function render(event) {
   dom["program-title"].textContent=event.title;
   dom["church-name"].textContent=event.churchName||"EKKO";
   dom["event-clock"].textContent=!live&&event.scheduledStartAt?formatDate(event.scheduledStartAt):"";
-  dom["status-text"].textContent=live?"LIVE":event.status==="ended"?"EVENT ENDED":"UPCOMING";
+  dom["status-text"].textContent=live?"":event.status==="ended"?"EVENT ENDED":"UPCOMING";
+  dom["status-text"].hidden=live;
   dom["status-signal"].hidden=!live;
+  dom["status-chip"].setAttribute("aria-label",live?"Live broadcast":event.status==="ended"?"Broadcast ended":"Upcoming broadcast");
   if(event.status==="ended"){
     dom["stage-eyebrow"].textContent="THANK YOU FOR JOINING US";
     dom["stage-title"].textContent="Until we gather again.";

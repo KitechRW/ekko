@@ -132,11 +132,11 @@ test("approval-gated EKKO discovery, live sync, branded assets, and WebSub signa
     r=await req("/");
     let shareHtml=await r.text();
     assert.match(shareHtml,/Sunday Gathering — My Church on YouTube \| EKKO/);
-    assert.match(shareHtml,/Join the live broadcast on EKKO/);
+    assert.match(shareHtml,/Live now\. Join on EKKO/);
     r=await req("/api/admin/status","PUT",{status:"scheduled"},headers);
     r=await req("/");
     shareHtml=await r.text();
-    assert.match(shareHtml,/Join the upcoming broadcast on EKKO/);
+    assert.match(shareHtml,/Starts: .*UTC\. Join on EKKO/);
     r=await req("/api/admin/status","PUT",{status:"ended"},headers);
     r=await req("/");
     shareHtml=await r.text();
@@ -156,6 +156,8 @@ test("approval-gated EKKO discovery, live sync, branded assets, and WebSub signa
     assert.match(html,/rel="canonical" href="https:\/\/ekko\.rw\/"/);
     assert.match(html,/poster-stage/);
     assert.match(html,/id="share-button"/);
+    assert.match(html,/id="status-signal"/);
+    assert.doesNotMatch(html,/ON AIR|LIVE NOW|LIVE MOMENTS, SHARED TOGETHER/);
     for(const id of ["share-whatsapp","share-x","share-facebook","share-copy"])assert.match(html,new RegExp(`id="${id}"`));
     assert.match(html,/aria-haspopup="menu"/);
     assert.doesNotMatch(html,/id="youtube-link"|Watch on YouTube|Share event<\/button>/);
@@ -164,6 +166,8 @@ test("approval-gated EKKO discovery, live sync, branded assets, and WebSub signa
     r=await req("/admin");
     const adminHtml=await r.text();
     assert.match(adminHtml,/Welcome back/);
+    assert.match(adminHtml,/Every gathering deserves/);
+    assert.doesNotMatch(adminHtml,/Smart synchronization|Your moments\.|ONE CHURCH · ONE FEATURED EVENT · AUTO-SYNC/);
     assert.match(adminHtml,/class="channel-search-submit"/);
     assert.doesNotMatch(adminHtml,/Search <span aria-hidden="true">/);
     r=await req("/viewer.js");
