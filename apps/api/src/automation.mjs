@@ -8,6 +8,7 @@ const DAY = 24 * HOUR;
 // a 100-search-call daily bucket distinct from the videos.list unit budget.
 export function makeAutomation({ read, mutate, fetcher, apiKey, origin, secret, clock = Date.now, log = console }) {
   let running = null;
+  const queuedNotifications = new Set();
 
   async function verifyVideos(channelId, ids) {
     if (!apiKey || !ids.length) return [];
@@ -15,7 +16,10 @@ export function makeAutomation({ read, mutate, fetcher, apiKey, origin, secret, 
   }
 
   async function sync({ forceDiscovery = false, notifiedIds = [] } = {}) {
+    for (const id of notifiedIds) if (VIDEO_ID.test(id)) queuedNotifications.add(id);
     if (running) return running;
+    const incomingIds = [...queuedNotifications];
+    queuedNotifications.clear();
     running = (async () => {
       const initial = await read();
       const channelId = initial.channelId;
@@ -32,7 +36,7 @@ export function makeAutomation({ read, mutate, fetcher, apiKey, origin, secret, 
       const ids = [...new Set([
         initial.approvedVideoId,
         ...(initial.candidates || []).filter(x => x.status !== "ended").map(x => x.youtubeVideoId),
-        ...notifiedIds
+        ...incomingIds
       ])].filter(x => VIDEO_ID.test(x || "")).slice(0, 45);
 
       let fresh = [];
@@ -79,7 +83,10 @@ export function makeAutomation({ read, mutate, fetcher, apiKey, origin, secret, 
       const latest = await read();
       if (latest.channelId === channelId && secret && origin.startsWith("https://")) {
         const last = Date.parse(latest.websubRequestedAt || 0) || 0;
-        if (now - last >= 5 * DAY) {
+        const leaseExpires = Date.parse(latest.websubLeaseExpiresAt || 0) || 0;
+        const canRetry = now - last >= HOUR;
+        const needsRenewal = leaseExpires ? leaseExpires - now < DAY : now - last >= 12 * HOUR;
+        if (canRetry && needsRenewal) {
           await mutate(data => data.channelId === channelId ?
             { ...data, websubRequestedAt: new Date(now).toISOString() } : data);
           const subscriptionSecret = createHash("sha256").update(secret + ":" + channelId).digest("hex");
@@ -87,14 +94,17 @@ export function makeAutomation({ read, mutate, fetcher, apiKey, origin, secret, 
             await subscribeWebSub(fetcher, channelId, origin, subscriptionSecret);
           } catch (error) {
             log.warn("EKKO WebSub subscription:", error.message);
-            // Allow a retry at the next scheduled sync after a temporary failure.
-            await mutate(data => data.channelId === channelId ? { ...data, websubRequestedAt: null } : data);
+            // Keep the request timestamp to avoid hammering the hub after an outage.
+            // The next automatic attempt follows the renewal interval.
           }
         }
       }
       return { candidates: latest.candidates?.length || 0, updated: Boolean(fresh.length || tracked.length),
         discovered: fresh.length, discoveryFailed };
-    })().finally(() => { running = null; });
+    })().finally(() => {
+      running = null;
+      if (queuedNotifications.size) queueMicrotask(() => sync().catch(error => log.warn("EKKO queued notification:", error.message)));
+    });
     return running;
   }
 

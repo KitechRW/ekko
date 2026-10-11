@@ -55,7 +55,7 @@ async function jsonBody(req) {
 }
 function blank() {
   return {churchName:"", channelId:null, candidates:[], approvedVideoId:null, event:null,
-    overrideStatus:null, lastDiscoveryAt:null, lastVideoCheckAt:null, searchUsage:null, websubRequestedAt:null};
+    overrideStatus:null, lastDiscoveryAt:null, lastVideoCheckAt:null, searchUsage:null, websubRequestedAt:null, websubLeaseExpiresAt:null};
 }
 export function createApp(options={}) {
   const dataFile=resolve(options.dataFile || process.env.EKKO_DATA_FILE || DEFAULT_DATA_FILE);
@@ -151,6 +151,11 @@ export function createApp(options={}) {
         const challenge=url.searchParams.get("hub.challenge");
         if(data.channelId && url.searchParams.get("hub.mode")==="subscribe" &&
           url.searchParams.get("hub.topic")===topic && challenge && challenge.length<2048){
+          const lease=Number(url.searchParams.get("hub.lease_seconds"));
+          if(Number.isFinite(lease) && lease>=60 && lease<=30*86400){
+            await mutate(state=>state.channelId===data.channelId?
+              {...state,websubLeaseExpiresAt:new Date(Date.now()+lease*1000).toISOString()}:state);
+          }
           res.writeHead(200,{"Content-Type":"text/plain; charset=utf-8","Cache-Control":"no-store"});
           return res.end(challenge);
         }
@@ -229,6 +234,7 @@ export function createApp(options={}) {
         const body=await jsonBody(req);
         if(!["auto","scheduled","live","ended"].includes(body.status))
           return send(res,400,{error:"Invalid status."});
+        if(!published(await readState()))return send(res,409,{error:"Approve a broadcast first."});
         const data=await mutate(state=>({...state,
           overrideStatus:body.status==="auto"?null:body.status,
           event:state.event?{...state.event,updatedAt:new Date().toISOString()}:null}));

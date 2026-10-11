@@ -1,56 +1,58 @@
-# EKKO v0.1 — YouTube Live MVP
+# EKKO v0.1 — One church, one featured live event
 
-## Scope
+## What the viewer experiences
 
-One publicly viewable featured event; one password-protected administrator; a single web service; a YouTube Live URL embedded in the public page.
+EKKO is a branded, responsive destination for the church's **one administrator-approved event**. Its public page has three coordinated states:
 
-This is an implementation checkpoint and **not** the full multi-tenant HLS/realtime platform specified elsewhere in the repository.
+- **Upcoming:** an event artwork, title, schedule, and a live countdown. If the scheduled time passes but YouTube has not confirmed live status, EKKO does **not** falsely label it live.
+- **Live:** a YouTube embedded player. The iframe stays mounted while the same Video ID remains active, so regular status checks do not interrupt playback.
+- **Ended:** a polished closing message; replay and multiple events are intentionally outside the scope of v0.1.
 
-## How it works
+When no event is approved, the public page displays a branded EKKO welcome experience. Discovered-but-unapproved videos are never exposed by the public event endpoint. Browsers refresh the EKKO state without a full page reload and run the countdown locally.
 
-1. An admin opens /admin, signs in using the server-configured password, and enters the church, event, HTTPS YouTube Live link, optional description/start time, and manual status.
-2. The server validates an allowlist of YouTube hosts and extracts an eleven-character video ID before persisting the event atomically to a JSON file.
-3. Public users visit / to view the event, including an embedded YouTube video when the status is Live.
-4. Viewers poll for event updates every 20 seconds; broadcast changes do not require a page reload.
+## What an administrator experiences
 
-Statuses:
-- **Upcoming:** event information and schedule; no video loaded.
-- **Live:** YouTube embed and an Open on YouTube fallback link.
-- **Ended:** closing message; no automatic replay in v0.1.
+1. Visit /admin to see the branded EKKO Studio login.
+2. Configure the church name and **one permanent YouTube Channel ID** (starts with UC) once.
+3. EKKO discovers public upcoming and currently live broadcasts from that channel.
+4. Review the private queue and **approve one video**. This is the only action that publishes an event to the viewer.
+5. EKKO verifies its status automatically. The administrator may withdraw the event or temporarily override its state.
 
-Changing the EKKO status does not control or verify the YouTube broadcast. Embedding may fail if the upstream stream is restricted, unavailable, or embedding is disabled. The YouTube player may expose pause/seek controls, unlike the planned native HLS experience.
+Administrators never need to paste Video IDs, video URLs, schedules, or descriptions. EKKO derives event metadata from YouTube. YouTube playback availability and embedding permissions remain subject to YouTube and the publisher.
 
-## Security and deployment
+## How event discovery works
 
-- Credentials remain server-side via environment variables.
-- Password and signature comparisons use timing-safe operations.
-- Sessions are signed with HMAC and carried in HttpOnly, SameSite=Strict cookies; in production the cookie is Secure.
-- Mutations check request origin. EKKO's default public origin/canonical URL is https://ekko.rw; explicitly configure EKKO_PUBLIC_ORIGIN=https://ekko.rw in production. This origin is also used for Open Graph/Twitter sharing URLs.
-- A basic per-IP login attempt limit exists for a single Node.js process.
-- Browser code assigns event data as text rather than untrusted HTML.
-- CSP and browser security headers are applied.
-- JSON persistence uses atomic renames and a serialized write queue.
-- Production needs one Node.js worker, a persistent data volume, HTTPS proxy, supervisor and backups; scale-out requires a real database.
+- EKKO uses YouTube Data API search.list for upcoming/live public videos at most once per hour automatically (two search calls per discovery). Manual scans are rate limited and subject to a daily budget guard.
+- Videos.list verifies scheduledStartTime, actualStartTime and actualEndTime for tracked events. Regular verification is triggered every 60 seconds in the single running backend.
+- The YouTube WebSub hub sends channel upload/metadata update notifications to /api/webhooks/youtube. EKKO verifies HMAC signatures and channel/video IDs, queues any notifications arriving mid-sync and checks the affected videos.
+- WebSub does not guarantee broadcast start and end signals; status synchronization therefore retains lightweight API checks. WebSub subscriptions are renewed in advance of the hub-confirmed lease expiration.
+- EKKO has one persisted JSON data file with configuration, discovered events, approval and synchronization metadata. A single server process performs serialized atomic writes. No PostgreSQL is necessary for this scope.
 
-## Deferred
+YouTube search may not return unlisted/private broadcasts without additional authorization; v0.1 only supports publicly discoverable broadcasts.
 
-- Church self-registration, tenant isolation and roles.
-- HLS live-edge player with strict no-seek behavior.
-- YouTube stream-state automation and OAuth/API integration.
-- Viewer count, reactions and realtime chat.
-- Native TV/mobile apps, replay, payments, subscriptions and analytics.
+## Production
 
-## Verification
+Run npm start with Node.js >=20 behind an HTTPS reverse proxy. Required variables:
 
-Run **npm run check** and **npm test**.
+- EKKO_ADMIN_PASSWORD (12+ chars)
+- EKKO_SESSION_SECRET (32+ random chars, also used to derive the WebSub signature secret)
+- YOUTUBE_API_KEY (YouTube Data API enabled; restricted as appropriate)
+- EKKO_PUBLIC_ORIGIN=https://ekko.rw
+- EKKO_DATA_FILE=/var/lib/ekko/featured-event.json (recommended persistent path)
+- NODE_ENV=production (Secure session cookies)
 
-Manual browser acceptance:
-1. Publish a public, embeddable YouTube Live video as Upcoming.
-2. Confirm event title and schedule on desktop and mobile.
-3. Set Live, confirm the video plays when the viewer presses Play.
-4. Open in a second browser without logging in.
-5. Set Ended and confirm the viewer updates within 20 seconds.
-6. Restart the app and confirm event data survives.
-7. Confirm unauthenticated writes and malformed YouTube URLs fail.
+The webhook must be accessible via HTTPS at https://ekko.rw/api/webhooks/youtube, while admin authentication protects approval and configuration. Use backups and restrict the JSON file to the Node service. Do not deploy multiple independent writable Node instances.
 
-Automated tests do not validate real YouTube playback or production HTTPS; these require browser and deployment checks.
+## Acceptance checklist
+
+1. Channel connection works and the queue discovers a genuinely public scheduled YouTube broadcast.
+2. The event stays off the public site until approved.
+3. Approval immediately displays the Upcoming event and countdown.
+4. Start the real upstream broadcast and verify the live transition and player on desktop and mobile.
+5. Confirm viewer playback remains uninterrupted through periodic synchronization.
+6. End the YouTube stream and confirm the Ended state arrives automatically.
+7. Publish a second scheduled broadcast and verify it remains private until separately approved.
+8. Check WebSub callback verification, an actual signed notification, and subscription renewals in production.
+9. Confirm social image, favicon, HTTPS, persistence on restart, and all GitHub CI checks.
+
+Node.js tests mock the YouTube API, but production integration and live device playback still require hands-on acceptance.
