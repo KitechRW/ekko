@@ -1,14 +1,5 @@
 # EKKO Admin
 
-The admin application will let a church manage:
+v0.1 control room served at /admin. Configure EKKO_ADMIN_PASSWORD and EKKO_SESSION_SECRET before signing in. Administrators publish a single YouTube Live event and manually set Upcoming, Live or Ended status.
 
-- organization identity and branding;
-- stream playlist source;
-- programs;
-- broadcast schedules;
-- live-session metadata;
-- moderators and roles;
-- chat availability and moderation;
-- basic viewer/reaction/chat metrics.
-
-Administrative actions must always be organization-scoped.
+Multi-church roles, scheduling automation and moderation are future milestones.

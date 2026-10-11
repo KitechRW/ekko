@@ -25,9 +25,10 @@ export interface Organization {
 export interface StreamSource {
   id: string;
   organizationId: string;
-  type: "hls";
+  type: "hls" | "youtube";
   url: string;
   enabled: boolean;
+  youtubeVideoId?: string;
 }
 
 export interface Program {

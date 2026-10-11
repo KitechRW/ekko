@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080b13">
+  <meta name="description" content="Watch church live broadcasts with EKKO. Faith together, wherever you are.">
+  <title>EKKO · Live together</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/viewer.js" defer></script>
+</head>
+<body>
+  <div class="ambient"></div>
+  <header class="site-header container">
+    <a class="brand" href="/" aria-label="EKKO home">
+      <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+      <span>EKKO</span>
+    </a>
+    <span class="header-note"><span class="pulse-dot"></span> WORSHIP WITHOUT BORDERS</span>
+  </header>
+  <main class="container">
+    <div class="intro">
+      <div class="eyebrow"><span class="tiny-line"></span> ONE MOMENT. ONE COMMUNITY.</div>
+      <h1 id="event-title">Faith, together.<br>Wherever you are.</h1>
+      <p id="event-description" class="subheading">A place to gather and experience church live.</p>
+    </div>
+    <section class="broadcast-card" aria-label="Featured broadcast">
+      <div class="video-stage" id="video-stage">
+        <div id="player-host" class="player-host">
+          <div class="stage-message">
+            <div class="stage-symbol" aria-hidden="true">✦</div>
+            <h2 id="stage-title">Welcome to EKKO</h2>
+            <p id="stage-description">Our next broadcast will appear here.</p>
+          </div>
+        </div>
+        <span id="video-badge" class="video-badge" hidden>● LIVE</span>
+      </div>
+      <div class="broadcast-info">
+        <div class="broadcast-primary">
+          <span id="status-chip" class="status-chip">AWAITING BROADCAST</span>
+          <h2 id="program-title">Your place to watch, together.</h2>
+          <p id="church-name">EKKO · Built for every church</p>
+          <p id="schedule" class="schedule"></p>
+        </div>
+        <div class="broadcast-actions">
+          <button type="button" class="action secondary" id="share-button" aria-label="Share broadcast">↗ <span>Share</span></button>
+          <a id="youtube-link" class="action primary" target="_blank" rel="noopener noreferrer" hidden>Open on YouTube ↗</a>
+        </div>
+      </div>
+    </section>
+    <section class="mission">
+      <div class="mission-icon">✳</div>
+      <div>
+        <h2>More than a stream. A shared moment.</h2>
+        <p>EKKO connects communities to the same moment of worship, no matter where they gather.</p>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer container"><span>EKKO <span class="footer-muted">/ OPEN TO EVERY CHURCH</span></span><span class="footer-muted">A PLACE TO BELONG, LIVE.</span></footer>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

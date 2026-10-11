@@ -1,15 +1,19 @@
 {
   "name": "ekko",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "description": "Open-source live broadcasting and participation platform for churches.",
   "license": "Apache-2.0",
   "packageManager": "pnpm@10.17.1",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
-    "build": "pnpm -r build",
-    "dev": "pnpm -r --parallel dev",
-    "lint": "pnpm -r lint",
-    "test": "pnpm -r test",
-    "typecheck": "pnpm -r typecheck"
+    "start": "node apps/api/src/server.mjs",
+    "dev": "node --watch apps/api/src/server.mjs",
+    "build": "npm run check",
+    "check": "node --check apps/api/src/server.mjs && node --check apps/api/src/event.mjs && node --check apps/web/viewer.js && node --check apps/admin/admin.js",
+    "test": "node --test apps/api/test/*.test.mjs",
+    "typecheck": "pnpm --filter @ekko/contracts typecheck"
   }
 }

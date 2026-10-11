@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080b13">
+  <title>EKKO · Broadcast administration</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/admin.js" defer></script>
+</head>
+<body>
+  <div class="ambient"></div>
+  <header class="site-header container">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span><span>EKKO</span></a>
+    <span class="header-note">BROADCAST ADMINISTRATION</span>
+  </header>
+  <main class="container admin-main">
+    <div class="eyebrow"><span class="tiny-line"></span> CONTROL ROOM / v0.1</div>
+    <h1>Broadcast control.</h1>
+    <p class="subheading">Publish a YouTube Live event to EKKO. One featured event at a time.</p>
+    <section id="login-panel" class="admin-panel" hidden>
+      <h2>Administrator sign in</h2>
+      <p>Enter the administrator password to manage the broadcast.</p>
+      <form id="login-form">
+        <label for="password">Administrator password</label>
+        <input id="password" type="password" autocomplete="current-password" required>
+        <button class="action primary" type="submit">Sign in →</button>
+      </form>
+    </section>
+    <section id="editor-panel" class="admin-panel" hidden>
+      <div class="panel-heading">
+        <div><h2>Featured broadcast</h2><p>Changes appear on the public viewing page automatically.</p></div>
+        <button type="button" id="logout-button" class="action secondary">Sign out</button>
+      </div>
+      <form id="event-form">
+        <div class="form-grid">
+          <div class="field">
+            <label for="churchName">Church or organization</label>
+            <input id="churchName" name="churchName" maxlength="100" placeholder="Church name" required>
+          </div>
+          <div class="field">
+            <label for="status">Broadcast status</label>
+            <select id="status" name="status" required>
+              <option value="scheduled">Upcoming</option>
+              <option value="live">Live now</option>
+              <option value="ended">Ended</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="title">Event title</label>
+          <input id="title" name="title" maxlength="140" placeholder="Sunday Worship Celebration" required>
+        </div>
+        <div class="field">
+          <label for="youtubeUrl">YouTube Live link</label>
+          <input id="youtubeUrl" name="youtubeUrl" type="url" placeholder="https://www.youtube.com/live/..." required>
+          <small>Use a YouTube video, watch, or Live link. Embedding must be enabled on YouTube.</small>
+        </div>
+        <div class="field">
+          <label for="scheduledStartAt">Scheduled start (optional, your local time)</label>
+          <input id="scheduledStartAt" name="scheduledStartAt" type="datetime-local">
+        </div>
+        <div class="field">
+          <label for="description">Description (optional)</label>
+          <textarea id="description" name="description" maxlength="2000" rows="4" placeholder="Join us for worship, prayer and the Word."></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="submit" id="save-button" class="action primary">Save &amp; publish broadcast →</button>
+          <a class="action secondary" href="/" target="_blank" rel="noopener noreferrer">View public page ↗</a>
+        </div>
+      </form>
+    </section>
+    <p id="feedback" class="admin-feedback" role="status" aria-live="polite"></p>
+    <div class="admin-warning">YouTube provides the actual livestream. Setting EKKO to “Live now” does not start a YouTube broadcast.</div>
+  </main>
+  <footer class="site-footer container"><span>EKKO / ADMIN</span><span class="footer-muted">ONE EVENT · v0.1</span></footer>
+</body>
+</html>
