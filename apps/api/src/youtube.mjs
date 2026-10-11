@@ -99,3 +99,63 @@ export async function subscribeWebSub(fetcher, channelId, origin, secret) {
   const response = await fetcher("https://pubsubhubbub.appspot.com/subscribe", { method:"POST", headers:{"content-type":"application/x-www-form-urlencoded"}, body, signal:AbortSignal.timeout(12000) });
   if (!response.ok) throw new Error("YouTube WebSub hub returned HTTP " + response.status);
 }
+
+const HANDLE = /^@[A-Za-z0-9_.-]{3,30}$/;
+
+export function interpretChannelQuery(input) {
+  if(typeof input!=="string") return null;
+  const raw=input.trim();
+  if(!raw||raw.length>150)return null;
+  if(CHANNEL_ID.test(raw))return {type:"id",value:raw};
+  if(raw.startsWith("https://")){
+    let url;
+    try{url=new URL(raw);}catch{return null;}
+    if(!["youtube.com","www.youtube.com","m.youtube.com"].includes(url.hostname.toLowerCase()))return null;
+    const parts=url.pathname.split("/").filter(Boolean);
+    if(parts.length!==1 && !(parts.length===2 && parts[0]==="channel"))return null;
+    if(parts.length===2 && CHANNEL_ID.test(parts[1]))return {type:"id",value:parts[1]};
+    if(parts.length===1 && HANDLE.test(parts[0]))return {type:"handle",value:parts[0]};
+    return null;
+  }
+  if(raw.startsWith("http://")||raw.includes("://"))return null;
+  if(HANDLE.test(raw))return {type:"handle",value:raw};
+  if(raw.startsWith("@"))return null;
+  if(raw.length<2||raw.length>80||/[\x00-\x1f<>]/.test(raw))return null;
+  return {type:"name",value:raw};
+}
+
+const profileImage = value => {
+  if(typeof value!=="string")return "";
+  try{
+    const url=new URL(value);
+    return url.protocol==="https:"&&["yt3.googleusercontent.com","yt3.ggpht.com","yt3.google.com"].includes(url.hostname)?url.href:"";
+  }catch{return "";}
+};
+export function normalizeChannel(item) {
+  if(!item||!CHANNEL_ID.test(item.id||"")||!item.snippet)return null;
+  const title=typeof item.snippet.title==="string"?item.snippet.title.trim().slice(0,100):"";
+  if(!title)return null;
+  const handle=typeof item.snippet.customUrl==="string" ? item.snippet.customUrl.trim() : "";
+  return {
+    channelId:item.id,
+    title,
+    handle:HANDLE.test(handle)?handle:"",
+    description:typeof item.snippet.description==="string"?item.snippet.description.slice(0,220):"",
+    avatarUrl:profileImage(item.snippet.thumbnails?.high?.url||item.snippet.thumbnails?.default?.url||""),
+    url:"https://www.youtube.com/channel/"+item.id
+  };
+}
+export async function lookupYouTubeChannels(fetcher,key,input) {
+  const q=interpretChannelQuery(input);
+  if(!q)throw new Error("Enter a valid channel name, @handle or YouTube channel URL.");
+  if(q.type==="handle"||q.type==="id"){
+    const result=await ytGet(fetcher,key,"channels",{[q.type==="handle"?"forHandle":"id"]:q.value});
+    return (result.items||[]).map(normalizeChannel).filter(Boolean);
+  }
+  const search=await ytGet(fetcher,key,"search",{type:"channel",q:q.value,maxResults:"8"});
+  const ids=[...new Set((search.items||[]).map(item=>item.id?.channelId).filter(id=>CHANNEL_ID.test(id||"")))].slice(0,8);
+  if(!ids.length)return [];
+  const details=await ytGet(fetcher,key,"channels",{id:ids.join(",")});
+  const byId=new Map((details.items||[]).map(normalizeChannel).filter(Boolean).map(item=>[item.channelId,item]));
+  return ids.map(id=>byId.get(id)).filter(Boolean);
+}
