@@ -35,7 +35,7 @@ EKKO does not proxy the video. YouTube delivers playback directly.
 
 ### Brand assets
 
-Concept A (The Broadcast) identity is included as scalable light/dark SVG wordmarks, a broadcast-wave favicon/app icon, and an Open Graph social-card SVG. The tagline is **Faith Through Hearing.** Modern browsers support SVG favicons; **some social crawlers require JPEG/PNG previews**, so publish a raster version of the social card before production-wide sharing.
+Concept A (The Broadcast) identity is included as scalable light/dark SVG wordmarks, a broadcast-wave favicon/app icon, and an Open Graph social-card SVG. The tagline is **Faith Through Hearing.** The approved broadcast-wave direction includes SVG logos, PNG icons, an Apple touch icon, and a 1200 × 630 PNG Open Graph/Twitter card served from **https://ekko.rw/assets/social-card.png**. The raster assets are exported from the tracked SVG designs by the branding workflow.
 
 ### MVP endpoints
 

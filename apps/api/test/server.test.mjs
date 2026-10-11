@@ -69,7 +69,7 @@ test("publishes a single YouTube event, protecting admin changes", async () => {
     const html = await response.text();
     assert.match(html, /EKKO/);
     assert.match(html, /Faith Through Hearing/);
-    assert.match(html, /https:\/\/ekko\.rw\/assets\/social-card\.svg/);
+    assert.match(html, /https:\/\/ekko\.rw\/assets\/social-card\.png/);
     assert.match(html, /rel="canonical" href="https:\/\/ekko\.rw\/"/);
     assert.doesNotMatch(html, /__EKKO_SOCIAL_IMAGE__/);
     for (const asset of ["/assets/logo.svg", "/assets/logo-light.svg", "/assets/icon.svg", "/assets/social-card.svg"]) {
@@ -77,6 +77,13 @@ test("publishes a single YouTube event, protecting admin changes", async () => {
       assert.equal(image.status, 200);
       assert.match(image.headers.get("content-type"), /image\/svg\+xml/);
       assert.match(await image.text(), /<svg/);
+    }
+    for (const asset of ["/assets/social-card.png", "/assets/icon.png", "/assets/apple-touch-icon.png", "/assets/logo-light.png"]) {
+      const image = await fetch(base + asset);
+      assert.equal(image.status, 200);
+      assert.match(image.headers.get("content-type"), /image\/png/);
+      const bytes = new Uint8Array(await image.arrayBuffer());
+      assert.deepEqual([...bytes.slice(0, 4)], [137, 80, 78, 71]);
     }
     const manifest = await fetch(base + "/assets/site.webmanifest");
     assert.equal(manifest.status, 200);
@@ -94,7 +101,7 @@ test("renders absolute social image URLs from the configured public origin", asy
   try {
     const response = await fetch("http://127.0.0.1:" + server.address().port + "/");
     const page = await response.text();
-    assert.match(page, /https:\/\/ekko\.example\/assets\/social-card\.svg/);
+    assert.match(page, /https:\/\/ekko\.example\/assets\/social-card\.png/);
     assert.match(page, /property="og:url" content="https:\/\/ekko\.example\/"/);
     assert.match(page, /rel="canonical" href="https:\/\/ekko\.example\/"/);
   } finally {

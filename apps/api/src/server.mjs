@@ -18,6 +18,10 @@ const STATIC = new Map([
   ["/assets/logo-light.svg", ["apps/web/assets/logo-light.svg", "image/svg+xml"]],
   ["/assets/icon.svg", ["apps/web/assets/icon.svg", "image/svg+xml"]],
   ["/assets/social-card.svg", ["apps/web/assets/social-card.svg", "image/svg+xml"]],
+  ["/assets/social-card.png", ["apps/web/assets/social-card.png", "image/png"]],
+  ["/assets/icon.png", ["apps/web/assets/icon.png", "image/png"]],
+  ["/assets/apple-touch-icon.png", ["apps/web/assets/apple-touch-icon.png", "image/png"]],
+  ["/assets/logo-light.png", ["apps/web/assets/logo-light.png", "image/png"]],
   ["/assets/site.webmanifest", ["apps/web/assets/site.webmanifest", "application/manifest+json"]]
 ]);
 
@@ -202,7 +206,7 @@ export function createApp(options = {}) {
         if (path === "/") {
           return res.end(data.toString("utf8")
             .replaceAll("__EKKO_SITE_URL__", siteOrigin ? siteOrigin + "/" : "/")
-            .replaceAll("__EKKO_SOCIAL_IMAGE__", (siteOrigin || "") + "/assets/social-card.svg"));
+            .replaceAll("__EKKO_SOCIAL_IMAGE__", (siteOrigin || "") + "/assets/social-card.png"));
         }
         return res.end(data);
       }
