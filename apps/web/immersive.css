@@ -99,3 +99,25 @@ body:not(.cinema-mode) .theater-exit,body:not(.cinema-mode) .cinema-caption{disp
   .cinema-mode .video-badge{top:12px;left:12px}
 }
 @media(prefers-reduced-motion:reduce) {.mobile-dock{transition:none}}
+
+/* One quiet, inline share action to the right of the approved event.
+   No YouTube exit link or redundant mobile-dock share control. */
+.viewer-body .broadcast-bar{flex-direction:row;align-items:center;gap:12px}
+.viewer-body .broadcast-details{flex:1;min-width:0}
+.viewer-body .broadcast-actions{flex:0 0 auto;display:flex;align-items:center;gap:7px;flex-wrap:nowrap}
+.viewer-body .broadcast-icon-button{width:46px;height:46px;min-width:46px;min-height:46px;display:inline-grid;place-items:center;padding:0;border-radius:13px;border:1px solid rgba(147,185,245,.18);background:rgba(54,91,139,.17);color:#c7e3ff;cursor:pointer;transition:background .18s,border-color .18s,transform .18s;touch-action:manipulation}
+.viewer-body .broadcast-icon-button svg{width:20px;height:20px;display:block}
+.viewer-body .broadcast-icon-button:hover{background:rgba(71,133,211,.3);border-color:rgba(119,185,252,.5);transform:translateY(-1px)}
+.viewer-body .broadcast-icon-button:focus-visible{outline:2px solid #82cfff;outline-offset:3px}
+.viewer-body .broadcast-icon-button.share-icon-button{border-color:rgba(106,173,249,.3);background:rgba(50,115,197,.20);color:#a9d8ff}
+@media(max-width:700px){
+ .viewer-body .broadcast-bar{flex-direction:row;align-items:flex-start;padding:19px 17px;gap:10px}
+ .viewer-body .broadcast-actions{width:auto;flex:none;gap:0;align-self:center}
+ .viewer-body .broadcast-actions #theater-button{display:none}
+ .viewer-body .broadcast-details h2{overflow-wrap:anywhere}
+ .viewer-body .broadcast-icon-button{width:44px;height:44px;min-height:44px;min-width:44px}
+}
+@media(max-width:360px){
+ .viewer-body .broadcast-bar{flex-direction:row;align-items:flex-start}
+ .viewer-body .broadcast-actions{flex-direction:row}
+}
