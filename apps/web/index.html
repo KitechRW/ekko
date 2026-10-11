@@ -78,7 +78,17 @@
         </div>
         <div class="broadcast-actions">
           <button type="button" class="broadcast-icon-button" id="theater-button" aria-pressed="false" aria-label="Switch to immersive theater view" title="Theater view"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m13-5h3a2 2 0 0 1 2 2v3M3 16v3a2 2 0 0 0 2 2h3m13-5v3a2 2 0 0 1-2 2h-3"/></svg></button>
-          <button type="button" class="broadcast-icon-button share-icon-button" id="share-button" aria-label="Share the upcoming or live event" title="Share event" hidden><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V3m0 0L7 8m5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button>
+          <div class="share-anchor" id="share-anchor" hidden>
+            <button type="button" class="broadcast-icon-button share-icon-button" id="share-button" aria-label="Share this event" title="Share event" aria-haspopup="menu" aria-controls="share-menu" aria-expanded="false"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.2"/><circle cx="6" cy="12" r="2.2"/><circle cx="18" cy="19" r="2.2"/><path d="m8 11 8-5m-8 7 8 5"/></svg></button>
+            <div class="share-menu" id="share-menu" role="menu" aria-label="Share event" hidden>
+              <div class="share-menu-heading">SHARE THIS GATHERING</div>
+              <a id="share-whatsapp" role="menuitem" href="#" target="_blank" rel="noopener noreferrer"><span class="social-mark whatsapp" aria-hidden="true">W</span><span>WhatsApp</span><span class="menu-arrow" aria-hidden="true">↗</span></a>
+              <a id="share-x" role="menuitem" href="#" target="_blank" rel="noopener noreferrer"><span class="social-mark x" aria-hidden="true">𝕏</span><span>X</span><span class="menu-arrow" aria-hidden="true">↗</span></a>
+              <a id="share-facebook" role="menuitem" href="#" target="_blank" rel="noopener noreferrer"><span class="social-mark facebook" aria-hidden="true">f</span><span>Facebook</span><span class="menu-arrow" aria-hidden="true">↗</span></a>
+              <div class="share-separator"></div>
+              <button id="share-copy" type="button" role="menuitem"><svg class="copy-symbol" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="13" height="13" x="8" y="8" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg><span>Copy event details</span><span class="menu-arrow" aria-hidden="true">⧉</span></button>
+            </div>
+          </div>
         </div>
       </div>
     </section>

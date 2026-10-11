@@ -51,7 +51,8 @@ function render(event) {
   dom["poster-stage"].hidden=live;
   dom["player-host"].hidden=!live;
   dom["video-badge"].hidden=!live;
-  byId("share-button").hidden=!event||!["scheduled","live"].includes(event.status);
+  byId("share-anchor").hidden=!event||!["scheduled","live"].includes(event.status);
+  if(!event||!["scheduled","live"].includes(event.status))closeShareMenu();
   if(live)video(event.youtubeVideoId);
   else if(lastPlayerId){
     dom["player-host"].replaceChildren();lastPlayerId=null;
@@ -123,29 +124,64 @@ function notify(text){
 function shareContent(event, url) {
   const title=String(event?.title||"EKKO — Faith Through Hearing.").trim();
   const church=String(event?.churchName||"EKKO").trim();
-  return {title:title+" — "+church,text:title+"\n"+church,url,
-    copied:title+"\n"+church+"\n"+url};
+  const text=title+"\n"+church;
+  return {title,church,text,url,copied:text+"\n"+url};
 }
-async function shareBroadcast(){
+const shareButton=byId("share-button");
+const shareMenu=byId("share-menu");
+function closeShareMenu(returnFocus=false){
+  const wasOpen=!shareMenu.hidden;
+  shareMenu.hidden=true;
+  shareButton.setAttribute("aria-expanded","false");
+  if(returnFocus&&wasOpen)shareButton.focus({preventScroll:true});
+}
+function openShareMenu(){
   if(!currentEvent||!["scheduled","live"].includes(currentEvent.status))return;
   const url=location.origin+location.pathname;
-  const message=shareContent(currentEvent,url);
-  try{
-    if(navigator.share){
-      await navigator.share({title:message.title,text:message.text,url:message.url});
-    }else if(navigator.clipboard){
-      await navigator.clipboard.writeText(message.copied);
-      notify("Event, church and EKKO link copied.");
-    }else{
+  const content=shareContent(currentEvent,url);
+  byId("share-whatsapp").href="https://wa.me/?text="+encodeURIComponent(content.copied);
+  byId("share-x").href="https://twitter.com/intent/tweet?text="+encodeURIComponent(content.text)+"&url="+encodeURIComponent(url);
+  // Facebook Share Dialog uses the EKKO page metadata for the event and church.
+  // Facebook intentionally does not support prefilling an arbitrary post message.
+  byId("share-facebook").href="https://www.facebook.com/sharer/sharer.php?u="+encodeURIComponent(url);
+  shareMenu.hidden=false;
+  shareButton.setAttribute("aria-expanded","true");
+  byId("share-whatsapp").focus({preventScroll:true});
+}
+async function copyShareContent(){
+  if(!currentEvent||!["scheduled","live"].includes(currentEvent.status))return;
+  const message=shareContent(currentEvent,location.origin+location.pathname).copied;
+  try {
+    if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(message);
+    else {
       const input=document.createElement("textarea");
-      input.value=message.copied;input.readOnly=true;
+      input.value=message;input.readOnly=true;
       input.style.position="fixed";input.style.opacity="0";
       document.body.append(input);input.select();
-      const copied=document.execCommand("copy");input.remove();
-      notify(copied?"Event, church and EKKO link copied.":"Share: "+message.copied);
+      const ok=document.execCommand("copy");
+      input.remove();
+      if(!ok)throw new Error("Copy unsupported");
     }
-  }catch(e){if(e.name!=="AbortError")notify("Sharing wasn't available. Please try again.");}
+    notify("Event, church and EKKO link copied.");
+  } catch {
+    notify("Couldn't copy automatically. Try your browser's sharing tools.");
+  } finally { closeShareMenu(true); }
 }
+shareButton.addEventListener("click",()=>{
+  if(!shareMenu.hidden)closeShareMenu(true);else openShareMenu();
+});
+for(const id of ["share-whatsapp","share-x","share-facebook"]){
+  byId(id).addEventListener("click",()=>closeShareMenu());
+}
+byId("share-copy").addEventListener("click",copyShareContent);
+document.addEventListener("pointerdown",event=>{
+  if(!shareMenu.hidden&&!byId("share-anchor").contains(event.target))closeShareMenu();
+});
+document.addEventListener("keydown",event=>{
+  if(event.key==="Escape"&&!shareMenu.hidden){
+    event.preventDefault();closeShareMenu(true);
+  }
+});
 
 let theater=false;
 let theaterReturnFocus=null;
@@ -191,7 +227,6 @@ byId("dock-watch").addEventListener("click",event=>{
   byId("video-stage").scrollIntoView({block:"start",
     behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
 });
-byId("share-button").addEventListener("click",shareBroadcast);
 
 // Installability is browser-controlled; Safari on iOS requires Share → Add to Home Screen.
 let installPrompt=null;
