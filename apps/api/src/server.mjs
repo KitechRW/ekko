@@ -160,7 +160,7 @@ export function createApp(options = {}) {
           return send(res, 429, { error: "Too many attempts. Try again later." });
         }
         const body = await jsonBody(req);
-        if (typeof body.password !== "string" || !safeEqual(hash(body.password), hash(password))) {
+        if (!body || typeof body !== "object" || Array.isArray(body) || typeof body.password !== "string" || !safeEqual(hash(body.password), hash(password))) {
           const previous = window && window.until > now ? window.count : 0;
           failures.set(ip, { count: previous + 1, until: now + 15 * 60 * 1000 });
           return send(res, 401, { error: "Incorrect password." });
