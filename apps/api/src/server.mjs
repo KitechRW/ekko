@@ -4,7 +4,7 @@ import { dirname, resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHmac, createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { makeAutomation } from "./automation.mjs";
-import { CHANNEL_ID, VIDEO_ID, parseVideoNotifications, validWebSubSignature } from "./youtube.mjs";
+import { CHANNEL_ID, VIDEO_ID, parseVideoNotifications, validWebSubSignature, lookupYouTubeChannels, interpretChannelQuery } from "./youtube.mjs";
 
 const ROOT = fileURLToPath(new URL("../../../", import.meta.url));
 const DEFAULT_DATA_FILE = join(ROOT, "data", "featured-event.json");
@@ -58,7 +58,7 @@ async function jsonBody(req) {
   return body;
 }
 function blank() {
-  return {churchName:"", channelId:null, candidates:[], approvedVideoId:null, event:null,
+  return {churchName:"", channelId:null, channelHandle:"", channelAvatarUrl:"", candidates:[], approvedVideoId:null, event:null,
     overrideStatus:null, lastDiscoveryAt:null, lastVideoCheckAt:null, searchUsage:null, websubRequestedAt:null, websubLeaseExpiresAt:null};
 }
 export function createApp(options={}) {
@@ -74,6 +74,7 @@ export function createApp(options={}) {
   const configured=typeof password==="string" && password.length>=12 &&
     typeof secret==="string" && secret.length>=32;
   const failures=new Map();
+  const channelLookups=new Map();
   let pending=Promise.resolve();
 
   async function readState() {
@@ -135,7 +136,7 @@ export function createApp(options={}) {
     res.setHeader("X-Frame-Options","DENY");
     res.setHeader("Referrer-Policy","strict-origin-when-cross-origin");
     res.setHeader("Content-Security-Policy",
-      "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://i.ytimg.com; "+
+      "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://i.ytimg.com https://yt3.googleusercontent.com https://yt3.ggpht.com https://yt3.google.com; "+
       "connect-src 'self'; frame-src https://www.youtube-nocookie.com https://www.youtube.com; "+
       "base-uri 'none'; form-action 'self'; frame-ancestors 'none'");
     try{
@@ -199,17 +200,52 @@ export function createApp(options={}) {
       }
       if(req.method==="POST" && path==="/api/admin/logout")
         return send(res,200,{authenticated:false},{"Set-Cookie":sessionCookie("",0)});
+      if(req.method==="GET" && path==="/api/admin/channel/search"){
+        if(!authenticated(req))return send(res,401,{error:"Please sign in first."});
+        if(!youtubeApiKey)return send(res,503,{error:"YouTube channel search is not configured. Set YOUTUBE_API_KEY."});
+        const query=url.searchParams.get("q")||"";
+        const kind=interpretChannelQuery(query);
+        if(!kind)return send(res,400,{error:"Enter a channel name, @handle, or YouTube channel URL."});
+        const ip=req.socket.remoteAddress||"unknown";
+        const now=Date.now(),date=new Date(now).toISOString().slice(0,10);
+        const previous=channelLookups.get(ip);
+        if(previous?.date===date && previous.count>=25)
+          return send(res,429,{error:"Daily channel-search limit reached. Try tomorrow."});
+        if(previous && now-previous.at<2500)
+          return send(res,429,{error:"Please wait a moment before searching again."});
+        channelLookups.set(ip,{date,count:previous?.date===date?previous.count+1:1,at:now});
+        try {
+          const results=await lookupYouTubeChannels(youtubeFetch,youtubeApiKey,query);
+          return send(res,200,{channels:results,queryType:kind.type});
+        } catch(error) {
+          console.warn("YouTube channel search failed:",error.message);
+          return send(res,502,{error:"Could not reach YouTube channel search. Please try again."});
+        }
+      }
       if(req.method==="PUT" && path==="/api/admin/channel"){
         if(!authenticated(req))return send(res,401,{error:"Please sign in first."});
-        const body=await jsonBody(req),churchName=typeof body.churchName==="string"?body.churchName.trim():"",
-          channelId=typeof body.channelId==="string"?body.channelId.trim():"";
-        if(!churchName||churchName.length>100||!CHANNEL_ID.test(channelId))
-          return send(res,400,{error:"Enter a church name and a valid YouTube Channel ID beginning with UC."});
+        if(!youtubeApiKey)return send(res,503,{error:"YouTube channel search is not configured. Set YOUTUBE_API_KEY."});
+        const body=await jsonBody(req);
+        const channelId=typeof body.channelId==="string"?body.channelId.trim():"";
+        if(!CHANNEL_ID.test(channelId))
+          return send(res,400,{error:"Select a channel from YouTube search results."});
+        let channel;
+        try {
+          channel=(await lookupYouTubeChannels(youtubeFetch,youtubeApiKey,channelId))
+            .find(item=>item.channelId===channelId);
+        }catch(error){
+          console.warn("YouTube channel verification failed:",error.message);
+          return send(res,502,{error:"Could not verify the channel with YouTube. Please try again."});
+        }
+        if(!channel)return send(res,404,{error:"The selected YouTube channel is unavailable."});
         await mutate(data=>data.channelId===channelId ?
-          {...data,churchName,event:data.event?{...data.event,churchName}:null} :
-          {...blank(),channelId,churchName});
+          {...data,churchName:channel.title,channelHandle:channel.handle,
+            channelAvatarUrl:channel.avatarUrl,
+            event:data.event?{...data.event,churchName:channel.title}:null} :
+          {...blank(),channelId,churchName:channel.title,
+            channelHandle:channel.handle,channelAvatarUrl:channel.avatarUrl});
         queueMicrotask(()=>automation.sync({forceDiscovery:true}).catch(e=>console.warn("Discovery:",e.message)));
-        return send(res,200,{ok:true});
+        return send(res,200,{ok:true,channel});
       }
       if(req.method==="POST" && path==="/api/admin/scan"){
         if(!authenticated(req))return send(res,401,{error:"Please sign in first."});
