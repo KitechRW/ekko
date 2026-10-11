@@ -1,0 +1,17 @@
+{
+  "name": "EKKO — Faith Through Hearing",
+  "short_name": "EKKO",
+  "description": "Church live streaming and shared events.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080b13",
+  "theme_color": "#080b13",
+  "icons": [
+    {
+      "src": "/assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

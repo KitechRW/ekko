@@ -13,7 +13,12 @@ const STATIC = new Map([
   ["/styles.css", ["apps/web/styles.css", "text/css; charset=utf-8"]],
   ["/viewer.js", ["apps/web/viewer.js", "text/javascript; charset=utf-8"]],
   ["/admin", ["apps/admin/index.html", "text/html; charset=utf-8"]],
-  ["/admin.js", ["apps/admin/admin.js", "text/javascript; charset=utf-8"]]
+  ["/admin.js", ["apps/admin/admin.js", "text/javascript; charset=utf-8"]],
+  ["/assets/logo.svg", ["apps/web/assets/logo.svg", "image/svg+xml"]],
+  ["/assets/logo-light.svg", ["apps/web/assets/logo-light.svg", "image/svg+xml"]],
+  ["/assets/icon.svg", ["apps/web/assets/icon.svg", "image/svg+xml"]],
+  ["/assets/social-card.svg", ["apps/web/assets/social-card.svg", "image/svg+xml"]],
+  ["/assets/site.webmanifest", ["apps/web/assets/site.webmanifest", "application/manifest+json"]]
 ]);
 
 function send(res, status, data, headers = {}) {
@@ -68,6 +73,13 @@ export function createApp(options = {}) {
   const secret = options.sessionSecret ?? process.env.EKKO_SESSION_SECRET;
   const secureCookies = options.secureCookies ?? process.env.NODE_ENV === "production";
   const publicOrigin = options.publicOrigin || process.env.EKKO_PUBLIC_ORIGIN || null;
+  let siteOrigin = "";
+  if (publicOrigin) {
+    try {
+      const parsed = new URL(publicOrigin);
+      if (parsed.protocol === "https:" || parsed.protocol === "http:") siteOrigin = parsed.origin;
+    } catch { /* Local development may omit public origin. */ }
+  }
   const configured = typeof password === "string" && password.length >= 12 &&
     typeof secret === "string" && secret.length >= 32;
   const failures = new Map();
@@ -187,6 +199,11 @@ export function createApp(options = {}) {
         const [asset, type] = STATIC.get(path);
         const data = await readFile(join(ROOT, asset));
         res.writeHead(200, { "Content-Type": type, "Cache-Control": "no-cache" });
+        if (path === "/") {
+          return res.end(data.toString("utf8")
+            .replaceAll("__EKKO_SITE_URL__", siteOrigin ? siteOrigin + "/" : "/")
+            .replaceAll("__EKKO_SOCIAL_IMAGE__", (siteOrigin || "") + "/assets/social-card.svg"));
+        }
         return res.end(data);
       }
       return send(res, 404, { error: "Not found." });

@@ -25,13 +25,17 @@ Deploy as a **single Node.js process** behind HTTPS termination (for example, Ng
 
 - Set NODE_ENV=production so the admin session cookie uses Secure.
 - Set strong, unique EKKO_ADMIN_PASSWORD and EKKO_SESSION_SECRET values through your secrets manager.
-- Set EKKO_PUBLIC_ORIGIN to the public HTTPS origin to validate browser mutation requests.
+- Set EKKO_PUBLIC_ORIGIN to the public HTTPS origin to validate browser mutation requests and render absolute Open Graph/Twitter image URLs.
 - Store event JSON on a persistent writable volume with restricted access; back it up.
 - Use a process supervisor. Do not run multiple writable instances using this JSON file; migrate to a transactional database before scaling.
 - Confirm the YouTube Live video is publicly available and allows embedding. The publisher remains responsible for starting and stopping the actual YouTube broadcast.
 - Protect /admin with additional edge controls if available. The built-in password and per-process rate limit suit the initial one-admin MVP.
 
 EKKO does not proxy the video. YouTube delivers playback directly.
+
+### Brand assets
+
+Concept A (The Broadcast) identity is included as scalable light/dark SVG wordmarks, a broadcast-wave favicon/app icon, and an Open Graph social-card SVG. The tagline is **Faith Through Hearing.** Modern browsers support SVG favicons; **some social crawlers require JPEG/PNG previews**, so publish a raster version of the social card before production-wide sharing.
 
 ### MVP endpoints
 
