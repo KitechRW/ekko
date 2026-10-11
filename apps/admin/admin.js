@@ -7,7 +7,7 @@ let channelSearching=false;
 let channelResults=[];
 let latestQuery="";
 const fullDate=iso=>iso?new Intl.DateTimeFormat(undefined,{dateStyle:"medium",timeStyle:"short"}).format(new Date(iso)):"Not scheduled";
-const statusName=s=>s==="live"?"LIVE NOW":s==="ended"?"ENDED":"UPCOMING";
+const statusName=s=>s==="live"?"LIVE":s==="ended"?"ENDED":"UPCOMING";
 function feedback(msg,failed=false) {
   const target=get(ready?"admin-feedback":"login-feedback");
   target.textContent=msg;
@@ -27,7 +27,8 @@ function thumbnail(img,url) {
 function statusTag(s) {
   const span=document.createElement("span");
   span.className="broadcast-tag "+(s==="live"?"live":s==="ended"?"ended":"");
-  span.textContent=statusName(s);
+  if(s==="live"){const indicator=document.createElement("span");indicator.className="live-signal";indicator.setAttribute("aria-hidden","true");span.append(indicator);}
+  span.append(document.createTextNode(statusName(s)));
   return span;
 }
 function card(item,featured) {
@@ -95,7 +96,12 @@ function renderChannelResults(){
     details.append(name,handle);
     const select=document.createElement("button");
     select.type="button";select.className="studio-button "+(channel.channelId===current?.channelId?"secondary":"primary");
-    select.textContent=channel.channelId===current?.channelId?"Already connected":"Connect →";
+    select.className="studio-icon-action channel-connect";
+    select.title=channel.channelId===current?.channelId?"Already connected":"Connect "+channel.title;
+    select.setAttribute("aria-label",select.title);
+    select.innerHTML=channel.channelId===current?.channelId?
+      '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg>' :
+      '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg>';
     select.disabled=channel.channelId===current?.channelId||busy;
     select.addEventListener("click",()=>connectChannel(channel));
     article.append(avatar,details,select);
@@ -128,11 +134,10 @@ function render(data) {
   get("featured-active").hidden=!event;
   get("featured-status").textContent=event?statusName(event.status):"NONE APPROVED";
   get("featured-status").classList.toggle("connected",event?.status==="live");
+  get("featured-status").classList.toggle("live",event?.status==="live");
   if(event) {
     get("featured-title").textContent=event.title;
     get("featured-time").textContent=event.scheduledStartAt?"Scheduled · "+fullDate(event.scheduledStartAt):"Live event";
-    get("featured-live-badge").textContent=statusName(event.status);
-    get("featured-live-badge").className="broadcast-tag "+(event.status==="live"?"live":event.status==="ended"?"ended":"");
     thumbnail(get("featured-thumbnail"),event.thumbnailUrl);
   }
   get("manual-status").value=data.overrideStatus||"auto";

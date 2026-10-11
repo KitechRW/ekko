@@ -140,3 +140,10 @@ body:not(.cinema-mode) .theater-exit,body:not(.cinema-mode) .cinema-caption{disp
 .menu-arrow{margin-left:auto;color:#85a6d0}
 .share-separator{height:1px;background:rgba(149,195,246,.14);margin:7px 8px}
 .viewer-body .experience-frame{overflow:hidden}
+
+/* Single live state: a softly expanding beacon beside the featured event title. */
+.viewer-body .status-chip.live{display:inline-flex;gap:9px;align-items:center}
+.live-signal{position:relative;display:inline-block;width:8px;height:8px;flex-shrink:0;border-radius:50%;background:#ff526d}
+.live-signal:not([hidden])::after{content:"";position:absolute;inset:-1px;border-radius:50%;border:1.4px solid rgba(255,89,118,.65);animation:ekko-signal-ring 2s ease-out infinite}
+@keyframes ekko-signal-ring{0%{transform:scale(1);opacity:1}80%,100%{transform:scale(3.15);opacity:0}}
+@media(prefers-reduced-motion:reduce){.live-signal::after{animation:none!important;opacity:.7}}

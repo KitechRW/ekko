@@ -2,7 +2,7 @@ const byId=id=>document.getElementById(id);
 const dom=Object.fromEntries([
   "event-title","event-description","program-title","church-name","status-chip",
   "event-clock","stage-eyebrow","stage-title","stage-description","poster-stage",
-  "poster-image","player-host","video-badge","header-status",
+  "poster-image","player-host","status-chip","status-signal","status-text",
   "broadcast-kicker","countdown","count-days","count-hours","count-minutes","count-seconds"
 ].map(id=>[id,byId(id)]));
 let previousFingerprint=null;
@@ -50,15 +50,12 @@ function render(event) {
   const live=event?.status==="live" && /^[A-Za-z0-9_-]{11}$/.test(event.youtubeVideoId||"");
   dom["poster-stage"].hidden=live;
   dom["player-host"].hidden=!live;
-  dom["video-badge"].hidden=!live;
   byId("share-anchor").hidden=!event||!["scheduled","live"].includes(event.status);
   if(!event||!["scheduled","live"].includes(event.status))closeShareMenu();
   if(live)video(event.youtubeVideoId);
   else if(lastPlayerId){
     dom["player-host"].replaceChildren();lastPlayerId=null;
   }
-  dom["header-status"].classList.toggle("onair",live);
-  dom["header-status"].lastChild.textContent=live?" ON AIR":" BROADCAST HUB";
   dom["status-chip"].classList.toggle("live",live);
   dom["status-chip"].classList.toggle("ended",event?.status==="ended");
   if(!event){
@@ -70,7 +67,7 @@ function render(event) {
     dom["stage-description"].textContent="Your next shared live experience will appear here.";
     dom["program-title"].textContent="The next moment starts here.";
     dom["church-name"].textContent="EKKO · Faith Through Hearing.";
-    dom["status-chip"].textContent="AWAITING NEXT EVENT";
+    dom["status-text"].textContent="AWAITING NEXT EVENT";
     dom["event-clock"].textContent="";
     image(null);
     updateCountdown();
@@ -79,18 +76,19 @@ function render(event) {
   dom["event-title"].textContent=event.title;
   dom["event-description"].textContent=(event.description||"A shared live experience, wherever you are.")
     .replace(/\s+/g," ").slice(0,235);
-  dom["broadcast-kicker"].textContent=live?"WE ARE LIVE / JOIN THE MOMENT":
+  dom["broadcast-kicker"].textContent=live?"JOIN THE MOMENT":
     event.status==="ended"?"UNTIL WE GATHER AGAIN":"YOUR NEXT LIVE MOMENT";
   dom["program-title"].textContent=event.title;
   dom["church-name"].textContent=event.churchName||"EKKO";
-  dom["event-clock"].textContent=event.scheduledStartAt?formatDate(event.scheduledStartAt):"";
-  dom["status-chip"].textContent=live?"ON AIR NOW":event.status==="ended"?"EVENT ENDED":"UPCOMING EVENT";
+  dom["event-clock"].textContent=!live&&event.scheduledStartAt?formatDate(event.scheduledStartAt):"";
+  dom["status-text"].textContent=live?"LIVE":event.status==="ended"?"EVENT ENDED":"UPCOMING";
+  dom["status-signal"].hidden=!live;
   if(event.status==="ended"){
     dom["stage-eyebrow"].textContent="THANK YOU FOR JOINING US";
     dom["stage-title"].textContent="Until we gather again.";
     dom["stage-description"].textContent="This live moment has ended. Stay close for the next gathering.";
   }else if(live){
-    dom["stage-eyebrow"].textContent="LIVE NOW";
+    dom["stage-eyebrow"].textContent="FAITH THROUGH HEARING";
   }else{
     dom["stage-eyebrow"].textContent="COMING UP ON EKKO";
     dom["stage-title"].textContent="We gather soon.";
@@ -124,8 +122,18 @@ function notify(text){
 function shareContent(event, url) {
   const title=String(event?.title||"EKKO — Faith Through Hearing.").trim();
   const church=String(event?.churchName||"EKKO").trim();
-  const text=title+"\n"+church;
-  return {title,church,text,url,copied:text+"\n"+url};
+  let timing="Upcoming";
+  if(event?.status==="live") timing="🔴 Live now";
+  else if(event?.scheduledStartAt){
+    const starts=new Date(event.scheduledStartAt);
+    if(Number.isFinite(starts.getTime())){
+      timing="Starts: "+new Intl.DateTimeFormat(undefined,{
+        dateStyle:"full",timeStyle:"short",timeZoneName:"short"
+      }).format(starts);
+    }
+  }
+  const text=title+"\n"+church+"\n"+timing;
+  return {title,church,timing,text,url,copied:text+"\n"+url};
 }
 const shareButton=byId("share-button");
 const shareMenu=byId("share-menu");

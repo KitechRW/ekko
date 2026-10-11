@@ -81,3 +81,27 @@
 .candidate-actions .candidate-icon-button:focus-visible{outline:2px solid #94d8ff;outline-offset:3px}
 @media(max-width:600px){.channel-search-row .channel-search-submit{right:5px;width:43px;min-height:43px}
  .candidate-actions .candidate-icon-button{min-height:44px;min-width:44px;height:44px;width:44px}}
+
+/* Icon-only controls keep essential actions accessible without competing headlines. */
+.studio-topbar-actions{display:flex;align-items:center;gap:9px}
+.studio-icon-action{width:44px;height:44px;min-height:44px;min-width:44px;display:inline-grid;place-items:center;
+ border:1px solid rgba(141,190,251,.22);border-radius:12px;background:rgba(65,115,187,.13);
+ color:#c6e4ff;padding:0;cursor:pointer;transition:background .17s,border-color .17s}
+.studio-icon-action svg{width:20px;height:20px;display:block}
+.studio-icon-action:hover:not(:disabled){background:rgba(77,139,222,.31);border-color:#74bafd}
+.studio-icon-action:focus-visible{outline:2px solid #8dd7ff;outline-offset:3px}
+.studio-icon-action:disabled{opacity:.45;cursor:default}
+.channel-replace{margin-top:1px}
+.channel-cancel{margin-top:12px}
+.connected-channel{position:relative;padding-right:71px}
+.connected-channel>.channel-replace{position:absolute;right:15px;top:19px}
+.studio-heading-row{align-items:baseline}
+.studio-intro h1{max-width:960px}
+.featured-controls>.withdraw-action{align-self:flex-end;margin-top:3px;color:#f4afb9;border-color:rgba(235,123,150,.22);background:rgba(195,82,109,.07)}
+.queue-actions .studio-icon-action{flex-shrink:0}
+.broadcast-tag.live,.mini-status.live{display:inline-flex;align-items:center;gap:9px}
+.mini-status.live::before{content:"";width:8px;height:8px;border-radius:50%;background:#ff5478;box-shadow:0 0 0 0 rgba(255,76,114,.32);animation:ekko-live-grow 2s ease-out infinite}
+@keyframes ekko-live-grow{0%{box-shadow:0 0 0 0 rgba(255,76,114,.48)}65%,100%{box-shadow:0 0 0 9px rgba(255,76,114,0)}}
+.broadcast-tag.live .live-signal{margin-right:0}
+@media(prefers-reduced-motion:reduce){.mini-status.live::before{animation:none}}
+@media(max-width:600px){.studio-topbar-actions .studio-icon-action{width:42px;min-width:42px;height:42px;min-height:42px}.connected-channel{padding-right:63px}}

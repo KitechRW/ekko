@@ -44,8 +44,15 @@ function viewerShareMetadata(event){
       description:"Experience church services and Christian live events together, from wherever you are."};
   const title=String(event.title||"Live gathering").trim();
   const church=String(event.churchName||"EKKO").trim();
+  let timing=event.status==="live"?"Live now":"Upcoming broadcast";
+  if(event.status==="scheduled" && event.scheduledStartAt){
+    const date=new Date(event.scheduledStartAt);
+    if(Number.isFinite(date.getTime())){
+      timing="Starts: "+new Intl.DateTimeFormat("en",{dateStyle:"full",timeStyle:"short",timeZone:"UTC",timeZoneName:"short"}).format(date);
+    }
+  }
   return {title:title+" — "+church+" | EKKO",
-    description:title+" with "+church+". Join the "+(event.status==="live"?"live":"upcoming")+" broadcast on EKKO."};
+    description:title+" with "+church+". "+timing+". Join on EKKO."};
 }
 const send = (res, status, data, headers = {}) => {
   res.writeHead(status, { "Content-Type":"application/json; charset=utf-8",
