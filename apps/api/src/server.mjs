@@ -23,6 +23,8 @@ const STATIC = new Map([
   ["/assets/social-card.svg", ["apps/web/assets/social-card.svg", "image/svg+xml"]],
   ["/assets/social-card.png", ["apps/web/assets/social-card.png", "image/png"]],
   ["/assets/icon.png", ["apps/web/assets/icon.png", "image/png"]],
+  ["/assets/icon-192.png", ["apps/web/assets/icon-192.png", "image/png"]],
+  ["/assets/icon-512.png", ["apps/web/assets/icon-512.png", "image/png"]],
   ["/assets/apple-touch-icon.png", ["apps/web/assets/apple-touch-icon.png", "image/png"]],
   ["/assets/logo-light.png", ["apps/web/assets/logo-light.png", "image/png"]],
   ["/assets/site.webmanifest", ["apps/web/assets/site.webmanifest", "application/manifest+json"]]
