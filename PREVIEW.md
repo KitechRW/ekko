@@ -15,3 +15,7 @@ This branch hosts **UI demonstration only**, separate from the live Node.js appl
 In \`KitechRW/ekko\` → **Settings → Pages → Build and deployment**, select **Deploy from a branch**, branch **gh-pages** and folder **/(root)**, then **Save**. Wait for GitHub to finish publishing. The link above works only after Pages is enabled and the deployment succeeds.
 
 This is a publicly accessible static preview. Do not enter real administrator credentials in the preview.
+
+## Updated sharing and action controls
+
+The EKKO viewer uses one compact share icon beside the approved Upcoming/Live event. It opens WhatsApp, X, Facebook and Copy options; the demo uses sample church/event titles. Studio now places search inside the channel input and uses icon-only Preview and Approve actions. These are interactive UI previews, not actual YouTube account operations.

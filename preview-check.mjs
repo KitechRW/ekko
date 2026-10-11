@@ -42,3 +42,17 @@ assert.equal(manifest.start_url,"./");
 assert.ok(manifest.icons.some(i=>i.sizes==="192x192"));
 assert.ok(manifest.icons.some(i=>i.sizes==="512x512"));
 console.log("EKKO GitHub Pages interactive preview smoke checks passed");
+
+
+// UI review includes all four share choices and minimalist Studio action controls.
+for(const id of ["share-whatsapp","share-x","share-facebook","share-copy"])
+  assert.match(viewer,new RegExp('id="'+id+'"'));
+assert.match(viewer,/aria-haspopup="menu"/);
+assert.doesNotMatch(viewer,/Watch on YouTube|id="youtube-link"|id="dock-share"/);
+assert.match(viewScript,/wa\.me\/\?text=/);
+assert.match(viewScript,/twitter\.com\/intent\/tweet/);
+assert.match(viewScript,/facebook\.com\/sharer\/sharer\.php/);
+assert.match(viewScript,/navigator\.clipboard\.writeText/);
+assert.match(viewScript,/shareMenu\.style\.top/);
+assert.match(studio,/class="channel-search-submit"/);
+assert.match(adminScript,/candidate-icon-button/);
