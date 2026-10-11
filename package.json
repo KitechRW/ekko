@@ -12,7 +12,7 @@
     "start": "node apps/api/src/server.mjs",
     "dev": "node --watch apps/api/src/server.mjs",
     "build": "npm run check",
-    "check": "node --check apps/api/src/server.mjs && node --check apps/api/src/event.mjs && node --check apps/web/viewer.js && node --check apps/admin/admin.js",
+    "check": "node --check apps/api/src/server.mjs && node --check apps/api/src/event.mjs && node --check apps/api/src/youtube.mjs && node --check apps/api/src/automation.mjs && node --check apps/web/viewer.js && node --check apps/admin/admin.js",
     "test": "node --test apps/api/test/*.test.mjs",
     "typecheck": "pnpm --filter @ekko/contracts typecheck"
   }

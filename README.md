@@ -1,72 +1,54 @@
 # EKKO
 
-**EKKO is an open-source live broadcasting and participation platform for churches across TV, mobile, and web.**
+**Faith Through Hearing.** An open-source live broadcasting platform for churches.
 
-## v0.1 — First YouTube Live broadcast
+## v0.1 — one church, one approved live event
 
-The first runnable milestone is a **single featured YouTube Live broadcast on the web**. A church administrator signs in, adds an event and YouTube link, and switches the event between Upcoming, Live and Ended. Viewers open the public EKKO page without signing in to watch the embedded video.
+EKKO v0.1 is a responsive branded web viewer and a private **EKKO Studio** dashboard. The administrator signs in and enters a **YouTube Channel ID once**; EKKO discovers public upcoming and live broadcasts. **Discovered videos are never published automatically.** The administrator approves the desired video, and only that featured event appears on the public page.
 
-This is a small stepping stone toward provider-neutral HLS playback, realtime participation and multi-church support. The YouTube embed is controlled by YouTube: EKKO cannot enforce the future no-pause/no-seek principle on that embed. The Live state is set manually and **does not verify or start** the upstream YouTube broadcast.
+After approval, the event transitions **Upcoming → Live → Ended** from verified YouTube video metadata. The viewer uses a countdown for upcoming broadcasts, an embedded live player for active broadcasts, and a gentle ended state. A manual status override is available to the administrator as a fallback.
 
-### Run locally
+### Deployment
 
-Requires Node.js 20 or newer. No dependencies or database server are needed for v0.1.
+Requires Node.js >=20, a single writable server process, persistent filesystem storage and HTTPS (for example via Nginx on KITECH managed infrastructure).
 
-1. Export EKKO_ADMIN_PASSWORD (at least 12 characters) and EKKO_SESSION_SECRET (at least 32 random characters) in the Node process environment. See .env.example. The app does not automatically load .env files.
-2. Start the app with **npm start**.
-3. Open http://localhost:3000/admin to manage your broadcast and http://localhost:3000 to watch it.
-4. Run **npm run check** and **npm test** to validate the implementation.
+1. Configure EKKO_ADMIN_PASSWORD (12+ characters), EKKO_SESSION_SECRET (32+ random characters), YOUTUBE_API_KEY and EKKO_PUBLIC_ORIGIN=https://ekko.rw in the process environment (see .env.example).
+2. Optionally set EKKO_DATA_FILE to a persistent path such as /var/lib/ekko/featured-event.json. This single JSON file stores the channel configuration, discovered video metadata, approvals and event status. No separate database is required.
+3. Run npm start. Visit /admin for the Studio sign-in and / for the public viewer.
+4. Run npm run check and npm test. Test live playback, channel notifications and production reverse-proxy/HTTPS behavior before launch.
 
-Set PORT to change the port. The event is stored in data/featured-event.json by default; override with EKKO_DATA_FILE pointing to a persistent, writable location.
+**No Video ID needs to be entered manually.** Use a YouTube Channel ID beginning with UC, not an @handle. The configured channel must have public upcoming/live events discoverable with the YouTube Data API. Unlisted or private live events may not appear in unauthenticated public discovery. YouTube must permit embedding.
 
-### Production
+### How automatic synchronization works
 
-Deploy as a **single Node.js process** behind HTTPS termination (for example, Nginx on KITECH managed hosting).
+- Every hour, EKKO uses YouTube search.list for upcoming and active public videos. **Search calls have a separate quota bucket**; the app reserves two searches per scan, caps automated scans and limits manual rescans.
+- It periodically checks tracked videos via videos.list to verify actual broadcast start/end data.
+- YouTube WebSub push notifications for uploads/metadata updates trigger checks of the specific video when notifications arrive; subscription renewal is automated. **WebSub does not guarantee live-start/live-end notifications**, hence the lightweight checks.
+- The admin approves one verified candidate. New discoveries stay private, even if they are live; they cannot interrupt the viewer without a new approval.
+- The public viewer requests EKKO's own /api/event endpoint; it does **not** call the YouTube Data API. Its iframe stays mounted while the same live video remains featured.
 
-- Set NODE_ENV=production so the admin session cookie uses Secure.
-- Set strong, unique EKKO_ADMIN_PASSWORD and EKKO_SESSION_SECRET values through your secrets manager.
-- EKKO's public origin is **https://ekko.rw**. Set EKKO_PUBLIC_ORIGIN=https://ekko.rw in production (the same value is the default). The origin is used to validate browser mutation requests and render absolute Open Graph/Twitter image URLs and the canonical page URL. Override only for a real staging host.
-- Store event JSON on a persistent writable volume with restricted access; back it up.
-- Use a process supervisor. Do not run multiple writable instances using this JSON file; migrate to a transactional database before scaling.
-- Confirm the YouTube Live video is publicly available and allows embedding. The publisher remains responsible for starting and stopping the actual YouTube broadcast.
-- Protect /admin with additional edge controls if available. The built-in password and per-process rate limit suit the initial one-admin MVP.
+### Security and scale
 
-EKKO does not proxy the video. YouTube delivers playback directly.
+Studio uses a password-protected HttpOnly session, origin protection and login throttling. WebSub notifications require a valid HMAC signature derived from the configured session secret; only notifications for the connected channel are processed. No keys are exposed to browsers. Admin approval and status controls require authentication.
 
-### Brand assets
+This is a **one-church, one-instance, one-event** release. No PostgreSQL, multi-tenant onboarding, TV/mobile apps, chat, reaction system or HLS hosting are included. Do not run multiple processes against the same writable JSON file.
 
-Concept A (The Broadcast) identity is included as scalable light/dark SVG wordmarks, a broadcast-wave favicon/app icon, and an Open Graph social-card SVG. The tagline is **Faith Through Hearing.** The approved broadcast-wave direction includes SVG logos, PNG icons, an Apple touch icon, and a 1200 × 630 PNG Open Graph/Twitter card served from **https://ekko.rw/assets/social-card.png**. The raster assets are exported from the tracked SVG designs by the branding workflow.
+### Routes
 
-### MVP endpoints
+| Route | Purpose |
+| --- | --- |
+| GET / | Public viewing experience |
+| GET /admin | Branded EKKO Studio sign-in/dashboard |
+| GET /api/event | Approved public broadcast only |
+| GET /api/admin/dashboard | Private connected channel, discoveries and approval |
+| PUT /api/admin/channel | Configure the one church and channel |
+| POST /api/admin/scan | Quota-aware manual discovery |
+| POST /api/admin/approve | Publish a verified discovered video |
+| POST /api/admin/withdraw | Remove featured event from public page |
+| PUT /api/admin/status | Auto or manual status override |
+| GET/POST /api/webhooks/youtube | WebSub challenge / signed notifications |
 
-| Method | Route | Purpose |
-| --- | --- | --- |
-| GET | /api/health | Health status |
-| GET | /api/event | Public featured event |
-| GET | /api/admin/session | Authentication status |
-| POST | /api/admin/login | Password sign-in |
-| POST | /api/admin/logout | Clear session cookie |
-| PUT | /api/admin/event | Authenticated event publishing |
-
-See [v0.1 implementation notes](docs/MVP_V0_1.md).
-
-## Long-term principles
-
-- **Live means live.** Native live playback will avoid pause, seek, rewind and playback-speed controls.
-- **Bring your own stream.** Future HLS support is provider-neutral; YouTube is an additional initial source.
-- **Participation is first-class.** Repeated worship-oriented reactions, realtime presence and chat are planned.
-- **TV stays simple.** TV viewers read chat and send reactions; chat input stays on web/mobile.
-- **Multi-church architecture.** Organization-scoped data and authorization are required before expansion beyond the single featured event.
-- **Open and self-hostable.** Churches can deploy and extend the core platform.
-
-## Workspace
-
-- apps/api — Node.js v0.1 HTTP service; future realtime backend.
-- apps/web — v0.1 responsive viewer.
-- apps/admin — v0.1 administrator control room.
-- apps/mobile and apps/tv — future clients.
-- packages/contracts — shared future-ready domain types.
-- docs — product specification, architecture and roadmap.
+Brand assets include responsive SVG logos, a favicon and icon set, and /assets/social-card.png (1200x630), with https://ekko.rw as the canonical URL.
 
 ## License
 
