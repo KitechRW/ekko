@@ -12,3 +12,7 @@ body.preview-page {--preview-height:49px;padding-top:var(--preview-height)}
 @media(max-width:740px){body.preview-page{--preview-height:87px}.preview-bar{align-items:stretch;justify-content:center;flex-direction:column;padding:7px 12px;gap:7px}.preview-brand{justify-content:center}.preview-soft{font-size:9px}.preview-actions{justify-content:center;gap:6px}.preview-actions-label{font-size:8px;margin-right:0}.preview-actions button,.preview-actions a{font-size:10px;padding:6px 9px;min-height:29px}.preview-page .viewer-hero{margin-top:15px}.preview-page .preview-playback-center img{width:42px;margin-bottom:8px}.preview-page .preview-playback-center h2{font-size:20px;margin:8px 0 4px}.preview-page .preview-playback-center p{font-size:10px}.preview-page .studio-topbar{top:var(--preview-height)}}
 @media(max-width:380px){.preview-soft{display:none}.preview-actions-label{display:none}}
 @media(prefers-reduced-motion:reduce){.preview-bar *{transition:none!important}}
+
+/* The interactive preview toolbar must not cover the theater close control. */
+body.preview-page.cinema-mode .preview-bar{display:none!important}
+body.preview-page.cinema-mode{padding-top:0}

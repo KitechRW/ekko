@@ -1,0 +1,32 @@
+name: Check EKKO Pages UI Preview
+on:
+  push:
+    branches:
+      - gh-pages
+    paths:
+      - "index.html"
+      - "studio.html"
+      - "preview-*"
+      - "preview.css"
+      - "preview.webmanifest"
+      - "apps/web/**"
+      - "apps/admin/**"
+      - ".github/workflows/pages-preview-checks.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  smoke-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Validate preview JavaScript syntax
+        run: |
+          node --check preview-api.js
+          node --check preview-viewer.js
+          node --check preview-studio.js
+      - name: Validate static Pages entry points and assets
+        run: node preview-check.mjs
