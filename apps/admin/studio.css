@@ -56,3 +56,28 @@
  .channel-avatar{width:44px;height:44px}
  .channel-result .studio-button{margin-left:auto}
 }
+
+/* Search glyph sits inside the only YouTube channel input. */
+.channel-search-row{position:relative;display:block}
+.channel-search-row input{width:100%;min-height:52px;padding-right:63px}
+.channel-search-row .channel-search-submit{position:absolute;right:5px;top:50%;transform:translateY(-50%);
+ width:43px;height:43px;min-height:43px;border:0;border-radius:10px;display:grid;place-items:center;
+ background:linear-gradient(120deg,#69b9ff,#4096f4);color:#08182e;cursor:pointer;touch-action:manipulation;transition:background .15s}
+.channel-search-submit svg{width:20px;height:20px}
+.channel-search-submit:hover:not(:disabled){background:#9bd9ff}
+.channel-search-submit:focus-visible{outline:2px solid #e5f6ff;outline-offset:2px}
+.channel-search-submit.is-searching{opacity:.65;cursor:progress}
+.channel-search-submit.is-searching svg{animation:search-breathe .8s ease-in-out infinite alternate}
+@keyframes search-breathe{to{opacity:.45;transform:scale(.83)}}
+/* Compact preview/approval glyphs, aligned to the card's right edge. */
+.candidate-actions{display:flex;justify-content:flex-end;align-items:center;gap:9px}
+.candidate-actions .candidate-icon-button{width:43px;height:43px;min-width:43px;min-height:43px;border-radius:12px;
+ display:grid;place-items:center;padding:0;color:#c2e1ff;text-decoration:none;background:rgba(56,98,153,.23);
+ border:1px solid rgba(150,192,242,.23);cursor:pointer;transition:background .17s,border-color .17s,transform .17s}
+.candidate-icon-button svg{width:20px;height:20px;display:block}
+.candidate-actions .candidate-icon-button:hover:not(:disabled){background:rgba(71,137,215,.36);border-color:#83c5ff;transform:translateY(-1px)}
+.candidate-actions .candidate-icon-button.approve{color:#a0edcc;border-color:rgba(78,212,155,.3);background:rgba(47,154,111,.12)}
+.candidate-actions .candidate-icon-button.approved{color:#78d5ad;opacity:.66;cursor:default}
+.candidate-actions .candidate-icon-button:focus-visible{outline:2px solid #94d8ff;outline-offset:3px}
+@media(max-width:600px){.channel-search-row .channel-search-submit{right:5px;width:43px;min-height:43px}
+ .candidate-actions .candidate-icon-button{min-height:44px;min-width:44px;height:44px;width:44px}}
