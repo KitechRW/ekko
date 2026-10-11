@@ -48,7 +48,7 @@ function viewerShareMetadata(event){
   if(event.status==="scheduled" && event.scheduledStartAt){
     const date=new Date(event.scheduledStartAt);
     if(Number.isFinite(date.getTime())){
-      timing="Starts: "+new Intl.DateTimeFormat("en",{dateStyle:"full",timeStyle:"short",timeZone:"UTC",timeZoneName:"short"}).format(date);
+      timing="Starts: "+new Intl.DateTimeFormat("en",{weekday:"long",month:"long",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit",timeZone:"UTC",timeZoneName:"short"}).format(date);
     }
   }
   return {title:title+" — "+church+" | EKKO",

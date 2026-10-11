@@ -133,7 +133,7 @@ function shareContent(event, url) {
     const starts=new Date(event.scheduledStartAt);
     if(Number.isFinite(starts.getTime())){
       timing="Starts: "+new Intl.DateTimeFormat(undefined,{
-        dateStyle:"full",timeStyle:"short",timeZoneName:"short"
+        weekday:"long",month:"long",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit",timeZoneName:"short"
       }).format(starts);
     }
   }
