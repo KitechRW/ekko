@@ -127,6 +127,8 @@ test("approval-gated EKKO discovery, live sync, branded assets, and WebSub signa
     assert.equal(r.status,204);
     // Approved upcoming/live content appears in share metadata for link previews.
     // Both event title and church name are included.
+    r=await req("/api/admin/status","PUT",{status:"live"},headers);
+    assert.equal(r.status,200);
     r=await req("/");
     let shareHtml=await r.text();
     assert.match(shareHtml,/Sunday Gathering — My Church on YouTube \| EKKO/);
