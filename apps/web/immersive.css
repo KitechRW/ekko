@@ -207,11 +207,12 @@ body:not(.cinema-mode) .theater-exit,body:not(.cinema-mode) .cinema-caption{disp
 /* Mobile viewer: retain YouTube's 16:9 canvas while giving the event card
    enough contrast and room to read at phone widths. */
 @media(max-width:700px){
+  .viewer-body{min-height:100svh;display:flex;flex-direction:column}
   .viewer-body .site-header{padding-top:calc(12px + env(safe-area-inset-top));padding-bottom:12px;min-height:62px}
   .viewer-body .brand-image{width:118px}
   .viewer-body .header-status{display:none}
-  .viewer-body .viewer-main{width:calc(100% - 18px)}
-  .viewer-body:not(.cinema-mode) .experience-frame{width:min(100%,calc((100svh - 145px - env(safe-area-inset-top) - env(safe-area-inset-bottom))*1.777778));margin-inline:auto}
+  .viewer-body .viewer-main{width:calc(100% - 18px);flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;padding-block:12px}
+  .viewer-body:not(.cinema-mode) .experience-frame{width:min(100%,calc((100svh - 180px - env(safe-area-inset-top) - env(safe-area-inset-bottom))*1.777778));margin:0 auto}
   .viewer-body .experience-frame{border-radius:16px;border-color:rgba(142,190,248,.22);box-shadow:0 14px 38px rgba(0,0,0,.38)}
   .viewer-body .video-stage{width:100%;height:auto;max-height:none;aspect-ratio:16/9}
   .viewer-body .poster-stage>img{opacity:.22;filter:saturate(.72)}
