@@ -3,6 +3,13 @@ package rw.kitech.ekko.tv
 import androidx.activity.compose.BackHandler
 import android.os.Handler
 import android.os.Looper
+import android.os.Build
+import android.util.Log
+import android.view.ViewGroup
+import android.webkit.ConsoleMessage
+import android.webkit.RenderProcessGoneDetail
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
 import android.webkit.CookieManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
@@ -69,6 +76,7 @@ import kotlinx.coroutines.delay
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
+private const val TV_LOG = "EkkoTV"
 private val Screen = Color(0xFF080A0D)
 private val TextPrimary = Color(0xFFF7F8FA)
 private val TextMuted = Color(0xFFB7C0CB)
@@ -141,11 +149,13 @@ fun LivePlayerScreen(
     var playbackStatus by remember(youtubeVideoId) {
         mutableStateOf(if (youtubeVideoId.isBlank()) PlaybackStatus.WAITING else PlaybackStatus.CONNECTING)
     }
+    var playerAttempt by remember { mutableIntStateOf(0) }
     var reactionsVisible by remember { mutableStateOf(false) }
     var interactionVersion by remember { mutableIntStateOf(0) }
     var sentReaction by remember { mutableStateOf<String?>(null) }
     var currentClock by remember { mutableStateOf(LocalTime.now()) }
     val lifecycleOwner = LocalLifecycleOwner.current
+    var broadcastStatus by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(apiBaseUrl, lifecycleOwner) {
         while (true) {
@@ -156,6 +166,11 @@ fun LivePlayerScreen(
                         fetchFeaturedBroadcast(apiBaseUrl)
                     }
                     featuredBroadcast = current
+                    if (BuildConfig.EKKO_TV_DIAGNOSTICS &&
+                        (previousVideoId != current?.youtubeVideoId || current?.status != broadcastStatus)) {
+                        Log.i(TV_LOG, "Event: status=${current?.status ?: "none"} video=${current?.youtubeVideoId ?: "none"}")
+                    }
+                    broadcastStatus = current?.status
 
                     when {
                         current == null -> playbackStatus = PlaybackStatus.WAITING
@@ -222,6 +237,16 @@ fun LivePlayerScreen(
                     return@onPreviewKeyEvent false
                 }
 
+                if (BuildConfig.EKKO_TV_DIAGNOSTICS) {
+                    if ((event.key == Key.DirectionCenter || event.key == Key.Enter) && youtubeVideoId.isNotBlank()) {
+                        playerAttempt++
+                        playbackStatus = PlaybackStatus.CONNECTING
+                        Log.i(TV_LOG, "Remote OK: recreate diagnostic WebView attempt=$playerAttempt")
+                        return@onPreviewKeyEvent true
+                    }
+                    return@onPreviewKeyEvent false
+                }
+
                 if (reactionsVisible) {
                     interactionVersion += 1
                     return@onPreviewKeyEvent false
@@ -245,8 +270,10 @@ fun LivePlayerScreen(
         if (youtubeVideoId.isNotBlank()) {
             YouTubePlayer(
                 videoId = youtubeVideoId,
+                attempt = playerAttempt,
                 modifier = Modifier.fillMaxSize(),
                 onPlaybackState = { state ->
+                    if (BuildConfig.EKKO_TV_DIAGNOSTICS) Log.i(TV_LOG, "YouTube state=$state")
                     playbackStatus = when (state) {
                         1 -> PlaybackStatus.LIVE
                         3 -> PlaybackStatus.BUFFERING
@@ -254,12 +281,23 @@ fun LivePlayerScreen(
                         else -> PlaybackStatus.CONNECTING
                     }
                 },
-                onPlaybackError = {
+                onPlaybackError = { code ->
+                    Log.e(TV_LOG, "YouTube/WebView error code=$code")
+                    playbackStatus = PlaybackStatus.OFFLINE
+                },
+                onPlayerReady = {
+                    if (BuildConfig.EKKO_TV_DIAGNOSTICS) Log.i(TV_LOG, "YouTube player ready")
+                },
+                onAutoplayBlocked = {
+                    Log.w(TV_LOG, "YouTube autoplay blocked: press OK to retry diagnostic playback")
                     playbackStatus = PlaybackStatus.OFFLINE
                 },
             )
         }
 
+        // Diagnostic builds isolate the bare WebView from all Compose graphics.
+        // If audio plays but video remains blank here, the overlays aren't the cause.
+        if (!BuildConfig.EKKO_TV_DIAGNOSTICS || youtubeVideoId.isBlank()) {
         Box(
             modifier = Modifier
                 .align(Alignment.TopStart)
@@ -388,6 +426,7 @@ fun LivePlayerScreen(
                 .align(Alignment.BottomEnd)
                 .padding(end = 68.dp, bottom = 26.dp),
         )
+        }
     }
 }
 
@@ -428,34 +467,66 @@ private fun fetchFeaturedBroadcast(apiBaseUrl: String): FeaturedBroadcast? {
 @Composable
 private fun YouTubePlayer(
     videoId: String,
+    attempt: Int = 0,
     modifier: Modifier = Modifier,
     onPlaybackState: (Int) -> Unit,
-    onPlaybackError: () -> Unit,
+    onPlaybackError: (Int) -> Unit,
+    onPlayerReady: () -> Unit,
+    onAutoplayBlocked: () -> Unit,
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
-    var webView by remember(videoId) { mutableStateOf<WebView?>(null) }
+    var webView by remember(videoId, attempt) { mutableStateOf<WebView?>(null) }
 
-    key(videoId) {
+    key(videoId, attempt) {
         AndroidView(
             modifier = modifier,
             factory = { viewContext ->
                 WebView(viewContext).apply {
+                    val appOrigin = "https://" + viewContext.packageName
+                    if (BuildConfig.EKKO_TV_DIAGNOSTICS) {
+                        WebView.setWebContentsDebuggingEnabled(true)
+                        val engine = if (Build.VERSION.SDK_INT >= 26) WebView.getCurrentWebViewPackage() else null
+                        Log.i(TV_LOG, "WebView provider=${engine?.packageName ?: "unknown"} version=${engine?.versionName ?: "unknown"} sdk=${Build.VERSION.SDK_INT} hardware=$isHardwareAccelerated origin=$appOrigin video=$videoId")
+                    }
                     settings.javaScriptEnabled = true
                     settings.domStorageEnabled = true
                     settings.mediaPlaybackRequiresUserGesture = false
-                    webViewClient = WebViewClient()
-                    webChromeClient = WebChromeClient()
+                    webViewClient = object : WebViewClient() {
+                        override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
+                            if (BuildConfig.EKKO_TV_DIAGNOSTICS) {
+                                Log.e(TV_LOG, "Resource error mainFrame=${request.isForMainFrame} code=${error.errorCode} host=${request.url.host} description=${error.description}")
+                            }
+                            if (request.isForMainFrame) onPlaybackError(error.errorCode)
+                        }
+
+                        override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
+                            Log.e(TV_LOG, "WebView renderer exited; didCrash=${detail.didCrash()}")
+                            onPlaybackError(-2)
+                            (view.parent as? ViewGroup)?.removeView(view)
+                            view.destroy()
+                            webView = null
+                            return true
+                        }
+                    }
+                    webChromeClient = object : WebChromeClient() {
+                        override fun onConsoleMessage(message: ConsoleMessage): Boolean {
+                            if (BuildConfig.EKKO_TV_DIAGNOSTICS) {
+                                Log.d(TV_LOG, "JS ${message.messageLevel()}: ${message.message().take(300)}")
+                            }
+                            return true
+                        }
+                    }
                     CookieManager.getInstance().setAcceptCookie(true)
                     CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
                     addJavascriptInterface(
-                        YouTubePlaybackBridge(onPlaybackState, onPlaybackError),
+                        YouTubePlaybackBridge(onPlaybackState, onPlaybackError, onPlayerReady, onAutoplayBlocked),
                         "AndroidBridge",
                     )
                     isFocusable = false
                     isFocusableInTouchMode = false
                     loadDataWithBaseURL(
-                        "https://rw.kitech.ekko/",
-                        youtubePlayerHtml(videoId),
+                        appOrigin + "/",
+                        youtubePlayerHtml(videoId, appOrigin),
                         "text/html",
                         "UTF-8",
                         null,
@@ -467,7 +538,7 @@ private fun YouTubePlayer(
         )
     }
 
-    DisposableEffect(videoId, lifecycleOwner) {
+    DisposableEffect(videoId, attempt, lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_START -> webView?.onResume()
@@ -495,7 +566,9 @@ private fun YouTubePlayer(
 
 private class YouTubePlaybackBridge(
     private val onPlaybackState: (Int) -> Unit,
-    private val onPlaybackError: () -> Unit,
+    private val onPlaybackError: (Int) -> Unit,
+    private val onPlayerReady: () -> Unit,
+    private val onAutoplayBlocked: () -> Unit,
 ) {
     private val mainHandler = Handler(Looper.getMainLooper())
 
@@ -505,16 +578,27 @@ private class YouTubePlaybackBridge(
     }
 
     @JavascriptInterface
-    fun onError(@Suppress("UNUSED_PARAMETER") code: Int) {
-        mainHandler.post { onPlaybackError() }
+    fun onError(code: Int) {
+        mainHandler.post { onPlaybackError(code) }
+    }
+
+    @JavascriptInterface
+    fun onReady() {
+        mainHandler.post { onPlayerReady() }
+    }
+
+    @JavascriptInterface
+    fun onAutoplayBlocked() {
+        mainHandler.post { onAutoplayBlocked.invoke() }
     }
 }
 
-private fun youtubePlayerHtml(videoId: String): String = """
+private fun youtubePlayerHtml(videoId: String, appOrigin: String): String = """
     <!doctype html>
     <html>
     <head>
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="referrer" content="strict-origin-when-cross-origin">
       <style>
         html, body, #player { width:100%; height:100%; margin:0; padding:0; overflow:hidden; background:#000; }
       </style>
@@ -535,10 +619,15 @@ private fun youtubePlayerHtml(videoId: String): String = """
               playsinline: 1,
               disablekb: 1,
               enablejsapi: 1,
-              origin: 'https://rw.kitech.ekko',
-              widget_referrer: 'https://rw.kitech.ekko'
+              origin: '$appOrigin'
             },
             events: {
+              onReady: function() {
+                AndroidBridge.onReady();
+              },
+              onAutoplayBlocked: function() {
+                AndroidBridge.onAutoplayBlocked();
+              },
               onStateChange: function(event) {
                 AndroidBridge.onStateChanged(event.data);
               },

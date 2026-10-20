@@ -30,3 +30,22 @@ The Android module uses Gradle 8.13, JDK 17, and Android SDK 36. Install the gen
 The automatic **Android TV CI** workflow checks PRs and pushes to `main`. To publish a build, open **Actions → Android TV APK → Run workflow** and choose the branch. The manual workflow builds the app, creates a SHA-256 checksum, then uploads a versioned APK and an `Ekko-TV-latest.apk` copy with their checksum files to the shared Google Drive APK folder. The installed APK follows whichever broadcast is approved in EKKO Studio.
 
 The Ekko repository needs the `GDRIVE_RCLONE_CONFIG` secret, or the fallback `KITECHTV_RCLONE_CONFIG`, containing the same rclone Google Drive configuration used by Deepen. Configure it in **Settings → Secrets and variables → Actions**. The workflow fails with a clear error if neither secret is available. The APK is a debug build for testing/sideloading and is not signed as a Play Store release.
+
+## Diagnostic APK: audio plays but the TV stays black
+
+Build with `gradle --project-dir apps/tv -PEKKO_TV_DIAGNOSTICS=true :app:assembleDebug`.
+The **Android TV Playback Diagnostics** GitHub Actions workflow on the
+`fix/tv-playback-diagnostics` branch also builds this APK as a downloadable
+GitHub Actions artifact, without replacing `Ekko-TV-latest.apk` on Google Drive.
+
+When an approved broadcast is live, the diagnostic APK removes all Compose
+gradients, labels, and reaction overlays, leaving only the WebView player.
+It reports the installed WebView provider, app origin, JavaScript console,
+YouTube readiness/state/error codes, autoplay blocks, and renderer exits via Logcat.
+
+On the Mi Box, start an approved live broadcast and test whether video appears.
+Press **OK** to recreate the diagnostic player. Capture logs with
+`adb logcat -d -s EkkoTV:D`. Compare with the official YouTube TV app.
+If the diagnostic APK still plays audio without video, WebView/device playback
+is more likely than EKKO's Compose overlay. This is a diagnostic build, not a
+confirmed fix for TV video rendering.
