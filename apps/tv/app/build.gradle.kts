@@ -14,6 +14,11 @@ require(configuredApiBaseUrl.matches(Regex("https://[A-Za-z0-9.-]+(?::[0-9]+)?(?
     "EKKO_API_BASE_URL must be an HTTPS URL."
 }
 
+val diagnosticBuild = providers.gradleProperty("EKKO_TV_DIAGNOSTICS")
+    .map { it.equals("true", ignoreCase = true) }
+    .orElse(false)
+    .get()
+
 android {
     namespace = "rw.kitech.ekko.tv"
     compileSdk = 36
@@ -25,6 +30,7 @@ android {
         versionCode = 1
         versionName = "0.1.0"
         buildConfigField("String", "EKKO_API_BASE_URL", "\"$configuredApiBaseUrl\"")
+        buildConfigField("boolean", "EKKO_TV_DIAGNOSTICS", diagnosticBuild.toString())
     }
 
     buildFeatures {
