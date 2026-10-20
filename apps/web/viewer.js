@@ -1,9 +1,9 @@
 const byId=id=>document.getElementById(id);
 const dom=Object.fromEntries([
-  "event-title","event-description","program-title","church-name","status-chip",
+  "program-title","church-name","status-chip",
   "event-clock","stage-eyebrow","stage-title","stage-description","poster-stage",
   "poster-image","player-host","status-chip","status-signal","status-text",
-  "broadcast-kicker","countdown","count-days","count-hours","count-minutes","count-seconds"
+  "countdown","count-days","count-hours","count-minutes","count-seconds"
 ].map(id=>[id,byId(id)]));
 let previousFingerprint=null;
 let lastPlayerId=null;
@@ -59,9 +59,6 @@ function render(event) {
   dom["status-chip"].classList.toggle("live",live);
   dom["status-chip"].classList.toggle("ended",event?.status==="ended");
   if(!event){
-    dom["event-title"].textContent="A place to experience faith together.";
-    dom["event-description"].textContent="Wherever you are, you're part of the moment. Welcome to EKKO.";
-    dom["broadcast-kicker"].textContent="SHARED MOMENTS. REAL CONNECTION.";
     dom["stage-eyebrow"].textContent="EKKO LIVE EXPERIENCE";
     dom["stage-title"].textContent="Every moment has a place.";
     dom["stage-description"].textContent="Your next shared live experience will appear here.";
@@ -76,11 +73,6 @@ function render(event) {
     updateCountdown();
     return;
   }
-  dom["event-title"].textContent=event.title;
-  dom["event-description"].textContent=(event.description||"A shared live experience, wherever you are.")
-    .replace(/\s+/g," ").slice(0,235);
-  dom["broadcast-kicker"].textContent=live?"JOIN THE MOMENT":
-    event.status==="ended"?"UNTIL WE GATHER AGAIN":"YOUR NEXT LIVE MOMENT";
   dom["program-title"].textContent=event.title;
   dom["church-name"].textContent=event.churchName||"EKKO";
   dom["event-clock"].textContent=!live&&event.scheduledStartAt?formatDate(event.scheduledStartAt):"";

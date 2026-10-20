@@ -7,9 +7,6 @@
 .viewer-body .video-stage{aspect-ratio:16/8.65}
 .viewer-body .poster-image{object-position:center 40%}
 .viewer-body .player-host iframe{width:100%;height:100%}
-.viewer-body .viewer-hero{margin:28px auto 32px}
-.viewer-body .viewer-hero h1{font-size:clamp(36px,4.2vw,58px);line-height:1.13}
-.viewer-body .hero-eyebrow{letter-spacing:.22em}
 .viewer-body .experience-frame{box-shadow:0 22px 96px rgba(0,0,0,.54),0 0 110px rgba(25,92,176,.11)}
 .viewer-body .broadcast-bar{background:linear-gradient(140deg,rgba(22,37,62,.92),rgba(12,20,36,.93))}
 .viewer-body .video-stage:focus{outline:none}
@@ -30,11 +27,9 @@ body:not(.cinema-mode) .theater-exit,body:not(.cinema-mode) .cinema-caption{disp
 @media(min-width:1200px) {
   .viewer-body .viewer-main{width:min(1360px,calc(100% - 92px))}
   .viewer-body .video-stage{aspect-ratio:16/8.25}
-  .viewer-body .viewer-hero{margin:16px auto 25px}
 }
 @media(max-width:900px) {
   .viewer-body .header-wordmark{display:none}
-  .viewer-body .viewer-hero{margin:21px auto 24px}
   .viewer-body .video-stage{aspect-ratio:16/9}
   .viewer-body .broadcast-actions{flex-wrap:wrap}
 }
@@ -44,9 +39,6 @@ body:not(.cinema-mode) .theater-exit,body:not(.cinema-mode) .cinema-caption{disp
   .viewer-body .brand-image{width:124px}
   .viewer-body .header-status{font-size:9px;letter-spacing:.08em}
   .viewer-body .viewer-main{padding-bottom:0}
-  .viewer-body .viewer-hero{margin:21px auto 22px;padding:0 6px}
-  .viewer-body .viewer-hero h1{font-size:32px;margin:12px auto 10px}
-  .viewer-body.has-event .viewer-hero{display:none}
   .viewer-body.has-event .experience-frame{margin-top:3px}
   .viewer-body .experience-frame{border-radius:17px}
   .viewer-body .video-stage{aspect-ratio:16/9}
@@ -60,7 +52,7 @@ body:not(.cinema-mode) .theater-exit,body:not(.cinema-mode) .cinema-caption{disp
   .viewer-body .countdown strong{font-size:19px}
   .viewer-body .countdown small{font-size:7px}
   .viewer-body .broadcast-bar{padding:21px 18px}
-  .viewer-body .broadcast-details h2{font-size:clamp(18px,5vw,23px);margin:12px 0 11px}
+  .viewer-body .broadcast-details h1{font-size:clamp(18px,5vw,23px);margin:12px 0 11px}
   .viewer-body .broadcast-actions{display:flex;gap:9px}
   .viewer-body .broadcast-actions .experience-button{flex:1 1 42%;font-size:12px}
   .viewer-body .broadcast-actions #theater-button{display:none}
@@ -114,7 +106,7 @@ body:not(.cinema-mode) .theater-exit,body:not(.cinema-mode) .cinema-caption{disp
  .viewer-body .broadcast-bar{flex-direction:row;align-items:flex-start;padding:19px 17px;gap:10px}
  .viewer-body .broadcast-actions{width:auto;flex:none;gap:0;align-self:center}
  .viewer-body .broadcast-actions #theater-button{display:none}
- .viewer-body .broadcast-details h2{overflow-wrap:anywhere}
+ .viewer-body .broadcast-details h1{overflow-wrap:anywhere}
  .viewer-body .broadcast-icon-button{width:44px;height:44px;min-height:44px;min-width:44px}
 }
 @media(max-width:360px){
