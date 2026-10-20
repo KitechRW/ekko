@@ -224,10 +224,8 @@ test("installable app shell, theater actions and Studio remain separate",async()
     assert.match(page,/theater-button/);
     assert.match(page,/theater-exit/);
     assert.match(page,/immersive[.]css/);
-    assert.match(page,/We create one beautiful place to experience faith together/);
-    assert.match(page,/MORE THAN A STREAM/);
-    assert.match(page,/Presence is more than proximity\./);
-    assert.match(page,/<footer class="site-footer container"><span>© 2026 EKKO<\/span><span aria-hidden="true">\|<\/span><span>MORE THAN A STREAM<\/span><span aria-hidden="true">\|<\/span><span>Presence is more than proximity\.<\/span><\/footer>/);
+    assert.doesNotMatch(page,/We create one beautiful place to experience faith together|Presence is more than proximity|MORE THAN A STREAM|class="viewer-bottom"/);
+    assert.match(page,/<footer class="site-footer container">© 2026 EKKO<\/footer>/);
     response=await fetch(base+"/styles.css");
     assert.equal(response.status,200);
     const viewerCss=await response.text();
