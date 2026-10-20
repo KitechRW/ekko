@@ -1,6 +1,5 @@
 package rw.kitech.ekko.tv
 
-import android.view.KeyEvent as AndroidKeyEvent
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -38,8 +37,10 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.nativeKeyEvent
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -251,7 +252,7 @@ fun LivePlayerScreen(
             .fillMaxSize()
             .background(Screen)
             .onPreviewKeyEvent { event ->
-                if (event.type != KeyEventType.KeyDown || event.nativeKeyEvent.repeatCount > 0) {
+                if (event.type != KeyEventType.KeyDown) {
                     return@onPreviewKeyEvent false
                 }
 
@@ -260,12 +261,11 @@ fun LivePlayerScreen(
                     return@onPreviewKeyEvent false
                 }
 
-                when (event.nativeKeyEvent.keyCode) {
-                    AndroidKeyEvent.KEYCODE_DPAD_CENTER,
-                    AndroidKeyEvent.KEYCODE_ENTER,
-                    AndroidKeyEvent.KEYCODE_NUMPAD_ENTER,
-                    AndroidKeyEvent.KEYCODE_DPAD_LEFT,
-                    AndroidKeyEvent.KEYCODE_DPAD_RIGHT -> {
+                when (event.key) {
+                    Key.DirectionCenter,
+                    Key.Enter,
+                    Key.DirectionLeft,
+                    Key.DirectionRight -> {
                         reactionsVisible = true
                         interactionVersion += 1
                         true
