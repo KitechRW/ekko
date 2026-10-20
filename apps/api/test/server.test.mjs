@@ -234,12 +234,15 @@ test("installable app shell, theater actions and Studio remain separate",async()
     const viewer=await response.text();
     assert.match(viewer,/requestFullscreen/);
     assert.match(viewer,/lastPlayerId/);
+    assert.match(viewer,/if\\(enabled\\)\\{[\\s\\S]*?closeShareMenu\\(\\)/);
     assert.match(viewer,/beforeinstallprompt/);
     assert.match(viewer,/serviceWorker\.register/);
     response=await fetch(base+"/immersive.css");
     assert.equal(response.status,200);
     const immersiveCss=await response.text();
     assert.match(immersiveCss,/cinema-mode/);
+    // Theater displays a single caption, never the compact event/action bar.
+    assert.match(immersiveCss,/\\.viewer-body\\.cinema-mode \\.broadcast-bar\\{display:none!important\\}/);
     // Guard against the blank side gutters and mobile player stretching.
     assert.match(immersiveCss,/not\(\.cinema-mode\) \.experience-frame/);
     assert.match(immersiveCss,/not\(\.cinema-mode\) \.video-stage/);

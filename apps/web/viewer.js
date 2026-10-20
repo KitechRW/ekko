@@ -236,6 +236,9 @@ function setTheater(enabled) {
   byId("theater-button").setAttribute("aria-pressed",String(enabled));
   byId("dock-theater").setAttribute("aria-pressed",String(enabled));
   if(enabled){
+    // The share popup is portaled outside the player; close it before
+    // switching to theater so it cannot float over the fullscreen stage.
+    closeShareMenu();
     theaterReturnFocus=document.activeElement;
     byId("theater-exit").focus({preventScroll:true});
     // User gesture permits true browser fullscreen on supported devices; CSS

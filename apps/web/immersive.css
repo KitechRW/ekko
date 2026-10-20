@@ -24,6 +24,9 @@ body.cinema-mode{overflow:hidden;overscroll-behavior:none}
 .cinema-mode .poster-center h2{font-size:clamp(35px,5.8vw,76px)}
 .cinema-mode .video-badge{top:calc(18px + env(safe-area-inset-top));left:calc(18px + env(safe-area-inset-left));z-index:101}
 .cinema-mode .player-host iframe{display:block;width:100%;height:100%}
+/* Fullscreen has one dedicated caption. Hide the normal event bar and its
+   controls so they cannot overlap the caption or YouTube playback. */
+.viewer-body.cinema-mode .broadcast-bar{display:none!important}
 .cinema-mode .mobile-dock{display:none}
 body:not(.cinema-mode) .theater-exit,body:not(.cinema-mode) .cinema-caption{display:none!important}
 .mobile-dock{display:none}
