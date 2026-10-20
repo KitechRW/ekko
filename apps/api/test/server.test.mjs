@@ -223,7 +223,13 @@ test("installable app shell, theater actions and Studio remain separate",async()
     assert.match(viewer,/serviceWorker\.register/);
     response=await fetch(base+"/immersive.css");
     assert.equal(response.status,200);
-    assert.match(await response.text(),/cinema-mode/);
+    const immersiveCss=await response.text();
+    assert.match(immersiveCss,/cinema-mode/);
+    // Guard against the blank side gutters and mobile player stretching.
+    assert.match(immersiveCss,/not\(\.cinema-mode\) \.experience-frame/);
+    assert.match(immersiveCss,/not\(\.cinema-mode\) \.video-stage/);
+    assert.match(immersiveCss,/max-height:none/);
+    assert.match(immersiveCss,/aspect-ratio:16\/9/);
     response=await fetch(base+"/sw.js");
     assert.equal(response.status,200);
     const worker=await response.text();

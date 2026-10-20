@@ -185,3 +185,19 @@ body:not(.cinema-mode) .theater-exit,body:not(.cinema-mode) .cinema-caption{disp
    "Live now" or "On air" text. Accessible meaning remains in aria-label. */
 .viewer-body .status-chip.live{width:36px;height:32px;justify-content:center;padding:0}
 .viewer-body .status-chip.live .live-signal{width:9px;height:9px}
+
+
+/* The frame must be exactly as wide as the native 16:9 player. The viewport
+   height limit reduces WIDTH rather than producing unused side gutters or
+   stretching mobile video stages beyond the YouTube iframe. */
+.viewer-body:not(.cinema-mode) .experience-frame{
+  width:min(100%,calc(177.7778svh - 213.333px));
+  margin-inline:auto;
+}
+.viewer-body:not(.cinema-mode) .video-stage{
+  width:100%;
+  height:auto;
+  min-height:0;
+  max-height:none;
+  aspect-ratio:16/9;
+}
