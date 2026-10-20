@@ -6,7 +6,7 @@
 .viewer-body .experience-frame{background:#081324}
 /* Keep the complete player above the fold, allowing for the header and
    browser chrome. The iframe fits this area without cropping the video. */
-.viewer-body .video-stage{aspect-ratio:16/9;max-height:calc(100svh - 120px)}
+.viewer-body .video-stage{width:100%;aspect-ratio:16/9;max-height:calc(100svh - 120px)}
 .viewer-body .poster-image{object-position:center 40%}
 .viewer-body .player-host iframe{width:100%;height:100%}
 .viewer-body .experience-frame{box-shadow:0 22px 96px rgba(0,0,0,.54),0 0 110px rgba(25,92,176,.11)}
