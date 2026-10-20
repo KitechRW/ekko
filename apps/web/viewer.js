@@ -1,6 +1,6 @@
 const byId=id=>document.getElementById(id);
 const dom=Object.fromEntries([
-  "program-title","church-name","status-chip",
+  "program-title","church-name","church-avatar-image","status-chip",
   "event-clock","stage-eyebrow","stage-title","stage-description","poster-stage",
   "poster-image","player-host","status-chip","status-signal","status-text",
   "countdown","count-days","count-hours","count-minutes","count-seconds"
@@ -35,6 +35,23 @@ function image(url){
   dom["poster-image"].hidden=!valid;
   if(valid)dom["poster-image"].src=url;else dom["poster-image"].removeAttribute("src");
 }
+const fallbackChannelAvatar="/assets/icon.svg";
+const channelAvatarHosts=new Set(["yt3.googleusercontent.com","yt3.ggpht.com","yt3.google.com"]);
+function showChannelAvatar(url){
+  let safeUrl="";
+  if(typeof url==="string"){
+    try{
+      const candidate=new URL(url);
+      if(candidate.protocol==="https:"&&channelAvatarHosts.has(candidate.hostname))safeUrl=candidate.href;
+    }catch{}
+  }
+  dom["church-avatar-image"].src=safeUrl||fallbackChannelAvatar;
+}
+dom["church-avatar-image"].addEventListener("error",()=>{
+  if(dom["church-avatar-image"].getAttribute("src")!==fallbackChannelAvatar){
+    dom["church-avatar-image"].src=fallbackChannelAvatar;
+  }
+});
 function video(id){
   if(id===lastPlayerId)return;
   const iframe=document.createElement("iframe");
@@ -68,6 +85,7 @@ function render(event) {
     dom["stage-description"].textContent="Your next shared live experience will appear here.";
     dom["program-title"].textContent="The next moment starts here.";
     dom["church-name"].textContent="EKKO · Faith Through Hearing.";
+    showChannelAvatar(null);
     dom["status-text"].textContent="AWAITING NEXT EVENT";
     dom["status-text"].hidden=false;
     dom["status-signal"].hidden=true;
@@ -79,6 +97,7 @@ function render(event) {
   }
   dom["program-title"].textContent=event.title;
   dom["church-name"].textContent=event.churchName||"EKKO";
+  showChannelAvatar(event.channelAvatarUrl);
   dom["event-clock"].textContent=!live&&event.scheduledStartAt?formatDate(event.scheduledStartAt):"";
   dom["status-text"].textContent=live?"":event.status==="ended"?"EVENT ENDED":"UPCOMING";
   dom["status-text"].hidden=live;

@@ -122,7 +122,8 @@ export function createApp(options={}) {
   function published(state) {
     if (!state.event || !state.approvedVideoId ||
         state.event.youtubeVideoId!==state.approvedVideoId) return null;
-    return {...state.event,status:state.overrideStatus || state.event.status};
+    return {...state.event,status:state.overrideStatus || state.event.status,
+      channelAvatarUrl:state.channelAvatarUrl || ""};
   }
   function cookies(req) {
     const fields=(req.headers.cookie||"").split(";").map(x=>x.trim().split(/=(.*)/s).slice(0,2));

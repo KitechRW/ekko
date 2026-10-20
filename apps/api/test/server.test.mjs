@@ -10,6 +10,7 @@ import { normalizeBroadcast, parseVideoNotifications, validWebSubSignature, inte
 
 const channelId="UC"+"a".repeat(22);
 const videoId="jfKfPfyJRdk";
+const channelAvatarUrl="https://yt3.googleusercontent.com/channel-avatar-test";
 const sessionSecret="test-secret-with-at-least-thirty-two-characters";
 const json={"Content-Type":"application/json"};
 
@@ -28,7 +29,7 @@ test("approval-gated EKKO discovery, live sync, branded assets, and WebSub signa
   const fakeYoutube=async(url)=>{
     const target=new URL(String(url));
     if(target.hostname==="pubsubhubbub.appspot.com")return {ok:true,status:202};
-    if(target.pathname.endsWith("/channels"))return {ok:true,json:async()=>({items:[{id:channelId,snippet:{title:"My Church on YouTube",customUrl:"@mychurch"}}]})};
+    if(target.pathname.endsWith("/channels"))return {ok:true,json:async()=>({items:[{id:channelId,snippet:{title:"My Church on YouTube",customUrl:"@mychurch",thumbnails:{high:{url:channelAvatarUrl}}}}]})};
     if(target.pathname.endsWith("/search")){
       if(target.searchParams.get("type")==="channel")return {ok:true,json:async()=>({items:[{id:{channelId}}]})};
       searchCalls++;
@@ -82,6 +83,7 @@ test("approval-gated EKKO discovery, live sync, branded assets, and WebSub signa
     assert.equal(dashboard.channelId,channelId);
     assert.equal(dashboard.churchName,"My Church on YouTube");
     assert.equal(dashboard.channelHandle,"@mychurch");
+    assert.equal(dashboard.channelAvatarUrl,channelAvatarUrl);
     assert.ok(dashboard.candidates.some(x=>x.youtubeVideoId===videoId));
     assert.equal(dashboard.approvedVideoId,null);
     assert.equal(searchCalls,2);
@@ -93,11 +95,15 @@ test("approval-gated EKKO discovery, live sync, branded assets, and WebSub signa
     r=await req("/api/admin/approve","POST",{videoId},headers);
     assert.equal(r.status,200);
     r=await req("/api/event");
-    assert.equal((await r.json()).event.status,"scheduled");
+    const scheduledEvent=(await r.json()).event;
+    assert.equal(scheduledEvent.status,"scheduled");
+    assert.equal(scheduledEvent.channelAvatarUrl,channelAvatarUrl);
     mode="live";
     await app.syncYouTube();
     r=await req("/api/event");
-    assert.equal((await r.json()).event.status,"live");
+    const liveEvent=(await r.json()).event;
+    assert.equal(liveEvent.status,"live");
+    assert.equal(liveEvent.channelAvatarUrl,channelAvatarUrl);
     assert.ok(videoCalls>=2);
     mode="none";
     await app.syncYouTube();
@@ -157,6 +163,7 @@ test("approval-gated EKKO discovery, live sync, branded assets, and WebSub signa
     assert.match(html,/poster-stage/);
     assert.match(html,/id="share-button"/);
     assert.match(html,/id="status-signal"/);
+    assert.match(html,/id="church-avatar-image"/);
     assert.doesNotMatch(html,/ON AIR|LIVE NOW|LIVE MOMENTS, SHARED TOGETHER/);
     for(const id of ["share-whatsapp","share-x","share-facebook","share-copy"])assert.match(html,new RegExp(`id="${id}"`));
     assert.match(html,/aria-haspopup="menu"/);
@@ -177,6 +184,8 @@ test("approval-gated EKKO discovery, live sync, branded assets, and WebSub signa
     assert.match(viewerCode,/facebook\.com\/sharer\/sharer\.php/);
     assert.match(viewerCode,/navigator\.clipboard\.writeText/);
     assert.match(viewerCode,/shareMenu\.style\.top/);
+    assert.match(viewerCode,/showChannelAvatar\(event\.channelAvatarUrl\)/);
+    assert.match(viewerCode,/fallbackChannelAvatar/);
     r=await req("/admin.js");
     const studioCode=await r.text();
     assert.match(studioCode,/candidate-icon-button/);
