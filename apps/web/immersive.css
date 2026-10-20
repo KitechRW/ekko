@@ -243,3 +243,40 @@ body:not(.cinema-mode) .theater-exit,body:not(.cinema-mode) .cinema-caption{disp
   .viewer-body .broadcast-icon-button{width:36px;height:36px;min-width:36px;min-height:36px}
   .viewer-body .countdown>div{min-width:39px;padding:4px}
 }
+
+/* Keep every pixel of the native 16:9 thumbnail unobstructed. Event details
+   and controls live in a compact strip immediately below the player. */
+.viewer-body:not(.cinema-mode) .experience-frame{
+  width:min(100%,calc(177.7778svh - 498px));
+  margin-inline:auto;
+}
+.viewer-body .broadcast-bar{
+  position:relative;
+  z-index:5;
+  inset:auto;
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  gap:12px;
+  padding:10px 16px;
+  border-top:1px solid rgba(164,198,242,.18);
+  background:linear-gradient(180deg,rgba(11,19,34,.98),rgba(8,14,26,1));
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+}
+.viewer-body.cinema-mode .broadcast-bar{display:none!important}
+@media(max-width:700px){
+  .viewer-body:not(.cinema-mode) .experience-frame{
+    width:min(100%,calc((100svh - 280px - env(safe-area-inset-top) - env(safe-area-inset-bottom))*1.777778));
+  }
+  .viewer-body .broadcast-bar{
+    align-items:center;
+    padding:8px 10px;
+    gap:7px;
+  }
+}
+@media(max-width:700px) and (orientation:landscape) and (max-height:520px){
+  .viewer-body:not(.cinema-mode) .experience-frame{
+    width:min(100%,calc((100svh - 190px - env(safe-area-inset-top) - env(safe-area-inset-bottom))*1.777778));
+  }
+}
