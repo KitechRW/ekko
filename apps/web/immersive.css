@@ -4,7 +4,9 @@
 .skip-link:focus{top:14px}
 .viewer-body .viewer-main{max-width:1360px}
 .viewer-body .experience-frame{background:#081324}
-.viewer-body .video-stage{aspect-ratio:16/8.65}
+/* Keep the complete player above the fold, allowing for the header and
+   browser chrome. The iframe fits this area without cropping the video. */
+.viewer-body .video-stage{aspect-ratio:16/9;max-height:calc(100svh - 120px)}
 .viewer-body .poster-image{object-position:center 40%}
 .viewer-body .player-host iframe{width:100%;height:100%}
 .viewer-body .experience-frame{box-shadow:0 22px 96px rgba(0,0,0,.54),0 0 110px rgba(25,92,176,.11)}
@@ -15,7 +17,7 @@
 .cinema-caption{position:absolute;z-index:100;left:0;right:0;bottom:0;padding:90px max(24px,5vw) calc(29px + env(safe-area-inset-bottom));pointer-events:none;background:linear-gradient(0deg,rgba(3,8,17,.76),transparent);display:flex;flex-direction:column;gap:8px}
 .cinema-caption strong{font-weight:780;font-size:clamp(15px,2.3vw,27px);letter-spacing:-.02em;max-width:90%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 body.cinema-mode{overflow:hidden;overscroll-behavior:none}
-.cinema-mode .video-stage{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;height:100dvh!important;aspect-ratio:auto!important;background:#020409!important;z-index:99;border-radius:0!important}
+.cinema-mode .video-stage{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;height:100dvh!important;max-height:none!important;aspect-ratio:auto!important;background:#020409!important;z-index:99;border-radius:0!important}
 .cinema-mode .poster-stage{background:radial-gradient(ellipse at center,#142c4c 0%,#070c17 75%)}
 .cinema-mode .poster-stage>img{opacity:.35}
 .cinema-mode .poster-center h2{font-size:clamp(35px,5.8vw,76px)}
@@ -26,11 +28,9 @@ body:not(.cinema-mode) .theater-exit,body:not(.cinema-mode) .cinema-caption{disp
 .mobile-dock{display:none}
 @media(min-width:1200px) {
   .viewer-body .viewer-main{width:min(1360px,calc(100% - 92px))}
-  .viewer-body .video-stage{aspect-ratio:16/8.25}
 }
 @media(max-width:900px) {
   .viewer-body .header-wordmark{display:none}
-  .viewer-body .video-stage{aspect-ratio:16/9}
   .viewer-body .broadcast-actions{flex-wrap:wrap}
 }
 @media(max-width:700px) {
@@ -41,7 +41,7 @@ body:not(.cinema-mode) .theater-exit,body:not(.cinema-mode) .cinema-caption{disp
   .viewer-body .viewer-main{padding-bottom:0}
   .viewer-body.has-event .experience-frame{margin-top:3px}
   .viewer-body .experience-frame{border-radius:17px}
-  .viewer-body .video-stage{aspect-ratio:16/9}
+  .viewer-body .video-stage{max-height:calc(100svh - 150px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
   .viewer-body .poster-center{max-width:88%;padding:10px}
   .viewer-body .poster-symbol{display:none}
   .viewer-body .poster-center h2{font-size:clamp(18px,5.7vw,29px);margin:7px 0}
@@ -84,6 +84,12 @@ body:not(.cinema-mode) .theater-exit,body:not(.cinema-mode) .cinema-caption{disp
   .viewer-body .poster-center p{display:none}
 }
 @media(orientation:landscape) and (max-height:520px){
+  .viewer-body:not(.cinema-mode) .poster-symbol{display:none}
+  .viewer-body:not(.cinema-mode) .poster-center h2{font-size:24px;margin:8px 0}
+  .viewer-body:not(.cinema-mode) .poster-center p{display:none}
+  .viewer-body:not(.cinema-mode) .countdown{margin-top:10px}
+  .viewer-body:not(.cinema-mode) .countdown>div{padding:5px 8px}
+  .viewer-body:not(.cinema-mode) .countdown strong{font-size:20px}
   .cinema-mode .poster-symbol{display:none}
   .cinema-mode .poster-center h2{font-size:clamp(25px,4vw,42px)}
   .cinema-mode .poster-center p{display:none}
