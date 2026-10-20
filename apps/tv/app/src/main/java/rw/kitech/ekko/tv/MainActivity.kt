@@ -25,11 +25,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 LivePlayerScreen(
-                    youtubeVideoId = BuildConfig.EKKO_YOUTUBE_VIDEO_ID,
-                    broadcast = LiveBroadcast(
-                        churchName = "EKKO",
-                        programTitle = "Church broadcast",
-                    ),
+                    apiBaseUrl = BuildConfig.EKKO_API_BASE_URL,
                 )
             }
         }

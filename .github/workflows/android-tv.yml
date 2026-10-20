@@ -2,11 +2,6 @@ name: Android TV APK
 
 on:
   workflow_dispatch:
-    inputs:
-      youtube_video_id:
-        description: YouTube video ID for the active broadcast
-        required: true
-        type: string
 
 permissions:
   contents: read
@@ -34,19 +29,8 @@ jobs:
         with:
           gradle-version: "8.13"
 
-      - name: Validate YouTube video ID
-        env:
-          YOUTUBE_VIDEO_ID: ${{ inputs.youtube_video_id }}
-        run: |
-          if ! [[ "$YOUTUBE_VIDEO_ID" =~ ^[A-Za-z0-9_-]{11}$ ]]; then
-            echo "::error::Enter a valid 11-character YouTube video ID."
-            exit 1
-          fi
-
       - name: Assemble Android TV debug APK
-        env:
-          YOUTUBE_VIDEO_ID: ${{ inputs.youtube_video_id }}
-        run: gradle --project-dir apps/tv -PEKKO_YOUTUBE_VIDEO_ID="$YOUTUBE_VIDEO_ID" :app:assembleDebug
+        run: gradle --project-dir apps/tv :app:assembleDebug
 
       - name: Prepare APK and checksum
         id: apk

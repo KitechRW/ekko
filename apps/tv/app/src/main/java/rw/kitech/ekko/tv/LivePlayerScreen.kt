@@ -8,6 +8,11 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import java.net.HttpURLConnection
+import java.net.URL
+import org.json.JSONObject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -30,6 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -78,6 +84,13 @@ data class LiveBroadcast(
     val incomingReactions: List<IncomingReaction> = emptyList(),
 )
 
+private data class FeaturedBroadcast(
+    val youtubeVideoId: String,
+    val title: String,
+    val churchName: String,
+    val status: String,
+)
+
 data class LiveChatMessage(val id: String, val author: String, val text: String)
 data class IncomingReaction(val id: String, val emoji: String, val count: Int = 1)
 
@@ -113,10 +126,18 @@ private val reactionOptions = listOf(
 
 @Composable
 fun LivePlayerScreen(
-    youtubeVideoId: String,
-    broadcast: LiveBroadcast,
+    apiBaseUrl: String,
     onReactionSent: (String) -> Unit = {},
 ) {
+    var featuredBroadcast by remember(apiBaseUrl) { mutableStateOf<FeaturedBroadcast?>(null) }
+    val youtubeVideoId = featuredBroadcast
+        ?.takeIf { it.status == "live" }
+        ?.youtubeVideoId
+        .orEmpty()
+    val broadcast = featuredBroadcast?.let {
+        LiveBroadcast(churchName = it.churchName, programTitle = it.title)
+    } ?: LiveBroadcast(churchName = "EKKO", programTitle = "Waiting for broadcast")
+
     var playbackStatus by remember(youtubeVideoId) {
         mutableStateOf(if (youtubeVideoId.isBlank()) PlaybackStatus.WAITING else PlaybackStatus.CONNECTING)
     }
@@ -124,6 +145,33 @@ fun LivePlayerScreen(
     var interactionVersion by remember { mutableIntStateOf(0) }
     var sentReaction by remember { mutableStateOf<String?>(null) }
     var currentClock by remember { mutableStateOf(LocalTime.now()) }
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    LaunchedEffect(apiBaseUrl, lifecycleOwner) {
+        while (true) {
+            if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                try {
+                    val previousVideoId = featuredBroadcast?.youtubeVideoId
+                    val current = withContext(Dispatchers.IO) {
+                        fetchFeaturedBroadcast(apiBaseUrl)
+                    }
+                    featuredBroadcast = current
+
+                    when {
+                        current == null -> playbackStatus = PlaybackStatus.WAITING
+                        current.status != "live" -> playbackStatus =
+                            if (current.status == "ended") PlaybackStatus.OFFLINE else PlaybackStatus.WAITING
+                        previousVideoId != current.youtubeVideoId -> playbackStatus = PlaybackStatus.CONNECTING
+                        playbackStatus == PlaybackStatus.WAITING ||
+                            playbackStatus == PlaybackStatus.OFFLINE -> playbackStatus = PlaybackStatus.CONNECTING
+                    }
+                } catch (_: Exception) {
+                    if (featuredBroadcast == null) playbackStatus = PlaybackStatus.RECONNECTING
+                }
+            }
+            delay(15_000)
+        }
+    }
 
     LaunchedEffect(Unit) {
         while (true) {
@@ -343,6 +391,40 @@ fun LivePlayerScreen(
     }
 }
 
+private fun fetchFeaturedBroadcast(apiBaseUrl: String): FeaturedBroadcast? {
+    val endpoint = URL(apiBaseUrl.trimEnd('/') + "/api/event")
+    val connection = endpoint.openConnection() as HttpURLConnection
+    connection.requestMethod = "GET"
+    connection.connectTimeout = 8_000
+    connection.readTimeout = 8_000
+    connection.useCaches = false
+    connection.setRequestProperty("Accept", "application/json")
+    connection.setRequestProperty("Cache-Control", "no-cache")
+    connection.setRequestProperty("Pragma", "no-cache")
+
+    try {
+        if (connection.responseCode !in 200..299) {
+            throw IllegalStateException("EKKO returned HTTP ${connection.responseCode}")
+        }
+        val response = connection.inputStream.bufferedReader().use { it.readText() }
+        val event = JSONObject(response).optJSONObject("event") ?: return null
+        val videoId = event.optString("youtubeVideoId")
+        if (!videoId.matches(Regex("[A-Za-z0-9_-]{11}"))) return null
+
+        val status = event.optString("status").lowercase()
+        if (status !in setOf("scheduled", "upcoming", "live", "ended", "offline")) return null
+
+        return FeaturedBroadcast(
+            youtubeVideoId = videoId,
+            title = event.optString("title").ifBlank { "Church broadcast" },
+            churchName = event.optString("churchName").ifBlank { "EKKO" },
+            status = status,
+        )
+    } finally {
+        connection.disconnect()
+    }
+}
+
 @Composable
 private fun YouTubePlayer(
     videoId: String,
@@ -353,35 +435,37 @@ private fun YouTubePlayer(
     val lifecycleOwner = LocalLifecycleOwner.current
     var webView by remember(videoId) { mutableStateOf<WebView?>(null) }
 
-    AndroidView(
-        modifier = modifier,
-        factory = { viewContext ->
-            WebView(viewContext).apply {
-                settings.javaScriptEnabled = true
-                settings.domStorageEnabled = true
-                settings.mediaPlaybackRequiresUserGesture = false
-                webViewClient = WebViewClient()
-                webChromeClient = WebChromeClient()
-                CookieManager.getInstance().setAcceptCookie(true)
-                CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
-                addJavascriptInterface(
-                    YouTubePlaybackBridge(onPlaybackState, onPlaybackError),
-                    "AndroidBridge",
-                )
-                isFocusable = false
-                isFocusableInTouchMode = false
-                loadDataWithBaseURL(
-                    "https://rw.kitech.ekko/",
-                    youtubePlayerHtml(videoId),
-                    "text/html",
-                    "UTF-8",
-                    null,
-                )
-                webView = this
-            }
-        },
-        update = { view -> webView = view },
-    )
+    key(videoId) {
+        AndroidView(
+            modifier = modifier,
+            factory = { viewContext ->
+                WebView(viewContext).apply {
+                    settings.javaScriptEnabled = true
+                    settings.domStorageEnabled = true
+                    settings.mediaPlaybackRequiresUserGesture = false
+                    webViewClient = WebViewClient()
+                    webChromeClient = WebChromeClient()
+                    CookieManager.getInstance().setAcceptCookie(true)
+                    CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
+                    addJavascriptInterface(
+                        YouTubePlaybackBridge(onPlaybackState, onPlaybackError),
+                        "AndroidBridge",
+                    )
+                    isFocusable = false
+                    isFocusableInTouchMode = false
+                    loadDataWithBaseURL(
+                        "https://rw.kitech.ekko/",
+                        youtubePlayerHtml(videoId),
+                        "text/html",
+                        "UTF-8",
+                        null,
+                    )
+                    webView = this
+                }
+            },
+            update = { view -> webView = view },
+        )
+    }
 
     DisposableEffect(videoId, lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -404,6 +488,7 @@ private fun YouTubePlayer(
                 onPause()
                 destroy()
             }
+            webView = null
         }
     }
 }

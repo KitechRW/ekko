@@ -4,13 +4,14 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
-val configuredYouTubeVideoId = providers.gradleProperty("EKKO_YOUTUBE_VIDEO_ID")
-    .orElse("")
+val configuredApiBaseUrl = providers.gradleProperty("EKKO_API_BASE_URL")
+    .orElse("https://ekko.rw")
     .get()
     .trim()
+    .trimEnd('/')
 
-require(configuredYouTubeVideoId.isBlank() || configuredYouTubeVideoId.matches(Regex("[A-Za-z0-9_-]{11}"))) {
-    "EKKO_YOUTUBE_VIDEO_ID must be a YouTube video ID with 11 characters."
+require(configuredApiBaseUrl.matches(Regex("https://[A-Za-z0-9.-]+(?::[0-9]+)?(?:/.*)?"))) {
+    "EKKO_API_BASE_URL must be an HTTPS URL."
 }
 
 android {
@@ -23,7 +24,7 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "0.1.0"
-        buildConfigField("String", "EKKO_YOUTUBE_VIDEO_ID", "\"$configuredYouTubeVideoId\"")
+        buildConfigField("String", "EKKO_API_BASE_URL", "\"$configuredApiBaseUrl\"")
     }
 
     buildFeatures {
