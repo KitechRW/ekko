@@ -8,6 +8,7 @@
    browser chrome. The iframe fits this area without cropping the video. */
 .viewer-body .video-stage{width:min(100%,calc(177.7778svh - 213.333px));aspect-ratio:16/9;max-height:calc(100svh - 120px);margin-inline:auto}
 .viewer-body .poster-image{object-position:center 40%}
+.viewer-body:not(.cinema-mode) .poster-center{transform:translateY(-30px)}
 .viewer-body .player-host iframe{width:100%;height:100%}
 .viewer-body .experience-frame{box-shadow:0 22px 96px rgba(0,0,0,.54),0 0 110px rgba(25,92,176,.11)}
 .viewer-body .broadcast-bar{background:linear-gradient(180deg,rgba(11,19,34,.72),rgba(8,14,26,.96));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
@@ -101,8 +102,14 @@ body:not(.cinema-mode) .theater-exit,body:not(.cinema-mode) .cinema-caption{disp
 
 /* One quiet, inline share action to the right of the approved event.
    No YouTube exit link or redundant mobile-dock share control. */
-.viewer-body .broadcast-bar{position:absolute;z-index:5;left:0;right:0;bottom:0;flex-direction:row;align-items:center;gap:12px;padding:18px 25px;border-top:1px solid rgba(164,198,242,.18)}
+.viewer-body .broadcast-bar{position:absolute;z-index:5;left:0;right:0;bottom:0;flex-direction:row;align-items:center;gap:12px;padding:9px 20px;border-top:1px solid rgba(164,198,242,.18)}
 .viewer-body .broadcast-details{flex:1;min-width:0}
+.viewer-body .broadcast-details h1{font-size:18px;line-height:1.2;margin:4px 0}
+.viewer-body .broadcast-state{gap:8px}
+.viewer-body .status-chip{padding:5px 9px;font-size:9px}
+.viewer-body .event-clock{font-size:10px}
+.viewer-body .church-line{font-size:10px}
+.viewer-body .church-avatar{width:20px;height:20px}
 .viewer-body .broadcast-actions{flex:0 0 auto;display:flex;align-items:center;gap:7px;flex-wrap:nowrap}
 .viewer-body .broadcast-icon-button{width:46px;height:46px;min-width:46px;min-height:46px;display:inline-grid;place-items:center;padding:0;border-radius:13px;border:1px solid rgba(147,185,245,.18);background:rgba(54,91,139,.17);color:#c7e3ff;cursor:pointer;transition:background .18s,border-color .18s,transform .18s;touch-action:manipulation}
 .viewer-body .broadcast-icon-button svg{width:20px;height:20px;display:block}
@@ -111,16 +118,17 @@ body:not(.cinema-mode) .theater-exit,body:not(.cinema-mode) .cinema-caption{disp
 .viewer-body .broadcast-icon-button.share-icon-button{border-color:rgba(106,173,249,.3);background:rgba(50,115,197,.20);color:#a9d8ff}
 @media(max-width:700px){
  .viewer-body .video-stage{height:clamp(300px,44svh,390px);max-height:calc(100svh - 150px - env(safe-area-inset-top) - env(safe-area-inset-bottom));aspect-ratio:auto}
- .viewer-body .poster-center{transform:translateY(-48px)}
-  .viewer-body .broadcast-bar{flex-direction:row;align-items:flex-start;padding:7px 10px calc(7px + env(safe-area-inset-bottom));gap:6px}
+ .viewer-body .poster-center{transform:translateY(-40px)}
+ .viewer-body .poster-center p{display:none}
+ .viewer-body .broadcast-bar{flex-direction:row;align-items:flex-start;padding:6px 10px calc(6px + env(safe-area-inset-bottom));gap:6px}
  .viewer-body .broadcast-actions{width:auto;flex:none;gap:0;align-self:center}
  .viewer-body .broadcast-actions #theater-button{display:none}
-  .viewer-body .broadcast-details h1{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere;font-size:13px;line-height:1.2;margin:4px 0}
-  .viewer-body .broadcast-state{gap:6px}
-  .viewer-body .status-chip{padding:3px 7px;font-size:8px}
-  .viewer-body .event-clock{font-size:9px}
-  .viewer-body .church-line{font-size:9px;gap:5px}
-  .viewer-body .church-avatar{width:17px;height:17px}
+ .viewer-body .broadcast-details h1{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere;font-size:12px;line-height:1.2;margin:3px 0}
+ .viewer-body .broadcast-state{gap:5px}
+ .viewer-body .status-chip{padding:3px 6px;font-size:7px}
+ .viewer-body .event-clock{font-size:8px}
+ .viewer-body .church-line{font-size:8px;gap:4px}
+ .viewer-body .church-avatar{width:15px;height:15px}
  .viewer-body .broadcast-icon-button{width:44px;height:44px;min-height:44px;min-width:44px}
 }
 @media(max-width:360px){
