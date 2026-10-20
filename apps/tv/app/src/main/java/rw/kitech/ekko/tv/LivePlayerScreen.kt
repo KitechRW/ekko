@@ -13,13 +13,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -29,7 +27,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
@@ -41,7 +38,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.nativeKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
@@ -63,7 +59,6 @@ import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Text
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
@@ -93,6 +88,16 @@ private enum class PlaybackStatus {
     RECONNECTING,
     OFFLINE,
 }
+
+private val PlaybackStatus.label: String
+    get() = when (this) {
+        PlaybackStatus.WAITING -> "WAITING"
+        PlaybackStatus.CONNECTING -> "CONNECTING"
+        PlaybackStatus.LIVE -> "LIVE"
+        PlaybackStatus.BUFFERING -> "BUFFERING"
+        PlaybackStatus.RECONNECTING -> "RECONNECTING"
+        PlaybackStatus.OFFLINE -> "OFFLINE"
+    }
 
 private data class ReactionOption(val name: String, val emoji: String)
 
@@ -209,7 +214,12 @@ fun LivePlayerScreen(
     }
 
     val reactionFocusRequester = remember { FocusRequester() }
-    val scope = rememberCoroutineScope()
+    val rootFocusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        withFrameNanos { }
+        runCatching { rootFocusRequester.requestFocus() }
+    }
 
     LaunchedEffect(reactionsVisible) {
         if (reactionsVisible) {
@@ -263,6 +273,7 @@ fun LivePlayerScreen(
                     else -> false
                 }
             }
+            .focusRequester(rootFocusRequester)
             .focusable(),
     ) {
         if (player != null) {
@@ -272,7 +283,7 @@ fun LivePlayerScreen(
                     PlayerView(viewContext).apply {
                         useController = false
                         resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
-                        player = this@LivePlayerScreen.player
+                        this.player = player
                         keepScreenOn = true
                         setShowBuffering(PlayerView.SHOW_BUFFERING_NEVER)
                         setShutterBackgroundColor(android.graphics.Color.BLACK)
@@ -432,7 +443,7 @@ private fun TopStatus(
             Row(
                 modifier = Modifier
                     .clip(RoundedCornerShape(7.dp))
-                    .background(AccentRed)
+                    .background(if (status == PlaybackStatus.LIVE) AccentRed else Color(0xCC30363F))
                     .padding(horizontal = 12.dp, vertical = 7.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -444,7 +455,7 @@ private fun TopStatus(
                         .background(Color.White),
                 )
                 Text(
-                    text = if (status == PlaybackStatus.LIVE) "LIVE" else "LIVE",
+                    text = status.label,
                     color = Color.White,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
@@ -521,7 +532,7 @@ private fun ConnectionMessage(status: PlaybackStatus, modifier: Modifier = Modif
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
-            text = if (status == PlaybackStatus.RECONNECTING) "RECONNECTING" else "LIVE",
+            text = status.label,
             color = if (status == PlaybackStatus.OFFLINE) AccentRed else TextPrimary,
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
