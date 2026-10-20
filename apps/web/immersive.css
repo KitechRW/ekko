@@ -184,7 +184,6 @@ body:not(.cinema-mode) .theater-exit,body:not(.cinema-mode) .cinema-caption{disp
 .viewer-body .status-chip.live{width:36px;height:32px;justify-content:center;padding:0}
 .viewer-body .status-chip.live .live-signal{width:9px;height:9px}
 
-
 /* The frame must be exactly as wide as the native 16:9 player. The viewport
    height limit reduces WIDTH rather than producing unused side gutters or
    stretching mobile video stages beyond the YouTube iframe. */
@@ -204,3 +203,42 @@ body:not(.cinema-mode) .theater-exit,body:not(.cinema-mode) .cinema-caption{disp
 .viewer-body .church-avatar{width:22px;height:22px;border-radius:50%;overflow:hidden;flex-shrink:0}
 .viewer-body .church-avatar img{width:100%;height:100%;display:block;object-fit:cover;border-radius:50%}
 @media(max-width:700px){.viewer-body .church-avatar{width:19px;height:19px}}
+
+/* Mobile viewer: retain YouTube's 16:9 canvas while giving the event card
+   enough contrast and room to read at phone widths. */
+@media(max-width:700px){
+  .viewer-body .site-header{padding-top:calc(12px + env(safe-area-inset-top));padding-bottom:12px;min-height:62px}
+  .viewer-body .brand-image{width:118px}
+  .viewer-body .header-status{display:none}
+  .viewer-body .viewer-main{width:calc(100% - 18px)}
+  .viewer-body:not(.cinema-mode) .experience-frame{width:min(100%,calc((100svh - 145px - env(safe-area-inset-top) - env(safe-area-inset-bottom))*1.777778));margin-inline:auto}
+  .viewer-body .experience-frame{border-radius:16px;border-color:rgba(142,190,248,.22);box-shadow:0 14px 38px rgba(0,0,0,.38)}
+  .viewer-body .video-stage{width:100%;height:auto;max-height:none;aspect-ratio:16/9}
+  .viewer-body .poster-stage>img{opacity:.22;filter:saturate(.72)}
+  .viewer-body .poster-shade{background:linear-gradient(180deg,rgba(5,12,25,.46),rgba(5,12,25,.66) 58%,rgba(5,12,25,.78))}
+  .viewer-body .poster-center{max-width:100%;padding:8px 10px;transform:translateY(-23px)}
+  .viewer-body .poster-eyebrow{font-size:8px;letter-spacing:.19em}
+  .viewer-body .poster-center h2{font-size:clamp(19px,5.4vw,25px);line-height:1.08;margin:7px 0}
+  .viewer-body .poster-center p{display:none}
+  .viewer-body .countdown{gap:5px;margin-top:8px}
+  .viewer-body .countdown>div{min-width:43px;padding:5px 5px;border-radius:8px;background:rgba(7,18,37,.86)}
+  .viewer-body .countdown strong{font-size:17px}
+  .viewer-body .countdown small{font-size:6px;letter-spacing:.15em}
+  .viewer-body .broadcast-bar{padding:7px 9px calc(7px + env(safe-area-inset-bottom));gap:7px;align-items:center;background:linear-gradient(180deg,rgba(9,18,33,.92),rgba(6,12,23,.98));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+  .viewer-body .broadcast-details h1{font-size:12px;line-height:1.22;margin:4px 0;overflow-wrap:anywhere}
+  .viewer-body .broadcast-state{gap:6px}
+  .viewer-body .status-chip{font-size:7px;padding:3px 6px;letter-spacing:.08em}
+  .viewer-body .event-clock{font-size:8px}
+  .viewer-body .church-line{font-size:8px;gap:5px}
+  .viewer-body .church-avatar{width:17px;height:17px;border-radius:6px}
+  .viewer-body .church-avatar img{width:12px}
+  .viewer-body .broadcast-icon-button{width:40px;height:40px;min-width:40px;min-height:40px;border-radius:11px}
+  .viewer-body .viewer-bottom{margin:16px auto 12px;padding-inline:2px}
+  .viewer-body .mission-text p{font-size:9px;letter-spacing:.015em;white-space:normal;text-align:center;color:#a8bdd8}
+  .viewer-body .site-footer{min-height:36px;padding:10px 0 calc(82px + env(safe-area-inset-bottom));font-size:8px;letter-spacing:.12em;gap:4px 7px}
+}
+@media(max-width:380px){
+  .viewer-body .broadcast-details h1{font-size:11px}
+  .viewer-body .broadcast-icon-button{width:36px;height:36px;min-width:36px;min-height:36px}
+  .viewer-body .countdown>div{min-width:39px;padding:4px}
+}
