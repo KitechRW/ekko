@@ -1,0 +1,92 @@
+name: Android TV APK
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ekko-tv-apk-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.13"
+
+      - name: Assemble Android TV debug APK
+        run: gradle --project-dir apps/tv :app:assembleDebug
+
+      - name: Prepare APK and checksum
+        id: apk
+        run: |
+          mkdir -p artifacts
+          APK_NAME="Ekko-TV-${GITHUB_SHA::7}.apk"
+          APK_PATH="artifacts/${APK_NAME}"
+          cp apps/tv/app/build/outputs/apk/debug/app-debug.apk "$APK_PATH"
+          sha256sum "$APK_PATH" > "artifacts/${APK_NAME}.sha256"
+          echo "apk_name=$APK_NAME" >> "$GITHUB_OUTPUT"
+          echo "apk_path=$APK_PATH" >> "$GITHUB_OUTPUT"
+          echo "checksum_path=artifacts/${APK_NAME}.sha256" >> "$GITHUB_OUTPUT"
+
+      - name: Install rclone
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rclone
+
+      - name: Upload APK to Google Drive
+        env:
+          RCLONE_CONFIG_CONTENT: ${{ secrets.GDRIVE_RCLONE_CONFIG || secrets.KITECHTV_RCLONE_CONFIG }}
+          GDRIVE_APKS_FOLDER_ID: 1--t1tlg5ZYpFEgM7ayPLdAT-CAjs-G74
+          APK_NAME: ${{ steps.apk.outputs.apk_name }}
+          APK_PATH: ${{ steps.apk.outputs.apk_path }}
+          CHECKSUM_PATH: ${{ steps.apk.outputs.checksum_path }}
+        run: |
+          if [ -z "$RCLONE_CONFIG_CONTENT" ]; then
+            echo "::error::Configure GDRIVE_RCLONE_CONFIG or KITECHTV_RCLONE_CONFIG with the shared rclone Google Drive config used by Deepen."
+            exit 1
+          fi
+
+          RCLONE_CONFIG="$RUNNER_TEMP/ekko-rclone.conf"
+          printf '%s\n' "$RCLONE_CONFIG_CONTENT" > "$RCLONE_CONFIG"
+          chmod 600 "$RCLONE_CONFIG"
+
+          if ! grep -qE '^\[[^]]+\][[:space:]]*$' "$RCLONE_CONFIG"; then
+            echo "::error::The configured rclone secret does not look like a valid rclone config."
+            exit 1
+          fi
+
+          REMOTE_NAME="$(awk -F'[][]' '/^\[[^]]+\]/{print $2; exit}' "$RCLONE_CONFIG")"
+          test -n "$REMOTE_NAME"
+
+          rclone --config "$RCLONE_CONFIG" copyto \
+            "$APK_PATH" "${REMOTE_NAME}:${APK_NAME}" \
+            --drive-root-folder-id "$GDRIVE_APKS_FOLDER_ID"
+          rclone --config "$RCLONE_CONFIG" copyto \
+            "$CHECKSUM_PATH" "${REMOTE_NAME}:${APK_NAME}.sha256" \
+            --drive-root-folder-id "$GDRIVE_APKS_FOLDER_ID"
+          rclone --config "$RCLONE_CONFIG" copyto \
+            "$APK_PATH" "${REMOTE_NAME}:Ekko-TV-latest.apk" \
+            --drive-root-folder-id "$GDRIVE_APKS_FOLDER_ID"
+          rclone --config "$RCLONE_CONFIG" copyto \
+            "$CHECKSUM_PATH" "${REMOTE_NAME}:Ekko-TV-latest.apk.sha256" \
+            --drive-root-folder-id "$GDRIVE_APKS_FOLDER_ID"
+
+          rclone --config "$RCLONE_CONFIG" lsf "${REMOTE_NAME}:" \
+            --drive-root-folder-id "$GDRIVE_APKS_FOLDER_ID" \
+            --include "Ekko-TV-*"
