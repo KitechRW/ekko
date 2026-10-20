@@ -1,11 +1,5 @@
 # EKKO Web
 
-The web viewer will provide:
+v0.1 public responsive YouTube Live viewer, served by the Node.js HTTP app. Run from the repository root using npm start; visit http://localhost:3000.
 
-- continuous HLS live playback;
-- no pause/seek controls for live sessions;
-- church/program details;
-- viewer presence;
-- repeated reactions;
-- realtime chat read + send;
-- fullscreen and responsive desktop/mobile-browser layouts.
+Continuous provider-neutral HLS and realtime participation remain future milestones. YouTube embeds may expose playback controls.

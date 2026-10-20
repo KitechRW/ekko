@@ -1,0 +1,282 @@
+/* Adaptive experience: mobile feels like an app; desktop feels like a broadcast screen. */
+.viewer-body{min-height:100svh}
+.skip-link{position:fixed;top:-150px;left:18px;z-index:300;background:#d8ebff;color:#071a32;padding:12px 18px;border-radius:9px;font-weight:800}
+.skip-link:focus{top:14px}
+.viewer-body .viewer-main{max-width:1360px}
+.viewer-body .experience-frame{background:#081324}
+/* Keep the complete player above the fold, allowing for the header and
+   browser chrome. The iframe fits this area without cropping the video. */
+.viewer-body .video-stage{width:min(100%,calc(177.7778svh - 213.333px));aspect-ratio:16/9;max-height:calc(100svh - 120px);margin-inline:auto}
+.viewer-body .poster-image{object-position:center 40%}
+.viewer-body:not(.cinema-mode) .poster-center{transform:translateY(-30px)}
+.viewer-body .player-host iframe{width:100%;height:100%}
+.viewer-body .experience-frame{box-shadow:0 22px 96px rgba(0,0,0,.54),0 0 110px rgba(25,92,176,.11)}
+.viewer-body .broadcast-bar{background:linear-gradient(180deg,rgba(11,19,34,.72),rgba(8,14,26,.96));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.viewer-body .video-stage:focus{outline:none}
+.theater-exit{position:absolute;z-index:105;right:calc(18px + env(safe-area-inset-right));top:calc(17px + env(safe-area-inset-top));background:rgba(10,22,43,.82);color:white;border:1px solid rgba(201,226,255,.26);border-radius:99px;min-height:46px;padding:11px 17px;display:inline-flex;align-items:center;gap:10px;backdrop-filter:blur(20px);font-weight:780;font-size:12px}
+.theater-exit:hover{background:rgba(29,65,112,.94)}
+.cinema-caption{position:absolute;z-index:100;left:0;right:0;bottom:0;padding:90px max(24px,5vw) calc(29px + env(safe-area-inset-bottom));pointer-events:none;background:linear-gradient(0deg,rgba(3,8,17,.76),transparent);display:flex;flex-direction:column;gap:8px}
+.cinema-caption strong{font-weight:780;font-size:clamp(15px,2.3vw,27px);letter-spacing:-.02em;max-width:90%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.cinema-mode{overflow:hidden;overscroll-behavior:none}
+.cinema-mode .video-stage{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;height:100dvh!important;max-height:none!important;aspect-ratio:auto!important;background:#020409!important;z-index:99;border-radius:0!important}
+.cinema-mode .poster-stage{background:radial-gradient(ellipse at center,#142c4c 0%,#070c17 75%)}
+.cinema-mode .poster-stage>img{opacity:.35}
+.cinema-mode .poster-center h2{font-size:clamp(35px,5.8vw,76px)}
+.cinema-mode .video-badge{top:calc(18px + env(safe-area-inset-top));left:calc(18px + env(safe-area-inset-left));z-index:101}
+.cinema-mode .player-host iframe{display:block;width:100%;height:100%}
+/* Fullscreen has one dedicated caption. Hide the normal event bar and its
+   controls so they cannot overlap the caption or YouTube playback. */
+.viewer-body.cinema-mode .broadcast-bar{display:none!important}
+.cinema-mode .mobile-dock{display:none}
+body:not(.cinema-mode) .theater-exit,body:not(.cinema-mode) .cinema-caption{display:none!important}
+.mobile-dock{display:none}
+@media(min-width:1200px) {
+  .viewer-body .viewer-main{width:min(1360px,calc(100% - 92px))}
+}
+@media(max-width:900px) {
+  .viewer-body .header-wordmark{display:none}
+  .viewer-body .broadcast-actions{flex-wrap:wrap}
+}
+@media(max-width:700px) {
+  .viewer-body .container{width:calc(100% - 22px)}
+  .viewer-body .site-header{width:calc(100% - 36px);padding:calc(14px + env(safe-area-inset-top)) 0 14px;min-height:68px}
+  .viewer-body .brand-image{width:124px}
+  .viewer-body .header-status{font-size:9px;letter-spacing:.08em}
+  .viewer-body .viewer-main{padding-bottom:0}
+  .viewer-body.has-event .experience-frame{margin-top:3px}
+  .viewer-body .experience-frame{border-radius:17px}
+  .viewer-body .video-stage{width:100%;max-width:100%;aspect-ratio:16/9;height:auto;max-height:calc(100svh - 150px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
+  .viewer-body .poster-center{max-width:88%;padding:10px}
+  .viewer-body .poster-symbol{display:none}
+  .viewer-body .poster-center h2{font-size:clamp(18px,5.7vw,29px);margin:7px 0}
+  .viewer-body .poster-center p{font-size:11px;line-height:1.4}
+  .viewer-body .poster-eyebrow{font-size:8px}
+  .viewer-body .countdown{margin-top:10px}
+  .viewer-body .countdown>div{min-width:49px;padding:5px 4px}
+  .viewer-body .countdown strong{font-size:19px}
+  .viewer-body .countdown small{font-size:7px}
+  .viewer-body .broadcast-bar{padding:21px 18px}
+  .viewer-body .broadcast-details h1{font-size:clamp(18px,5vw,23px);margin:12px 0 11px}
+  .viewer-body .broadcast-actions{display:flex;gap:9px}
+  .viewer-body .broadcast-actions .experience-button{flex:1 1 42%;font-size:12px}
+  .viewer-body .broadcast-actions #theater-button{display:none}
+  .viewer-body .mission-aside{display:none}
+  .viewer-body .site-footer{padding-bottom:calc(105px + env(safe-area-inset-bottom))}
+  .mobile-dock{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:35;justify-content:space-around;align-items:stretch;
+    padding:8px max(12px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
+    background:rgba(9,17,32,.93);border-top:1px solid rgba(151,196,255,.2);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+    box-shadow:0 -10px 44px rgba(0,0,0,.28)}
+  .dock-control{display:flex;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:48px;
+    background:transparent;border:0;color:#b5cbe6;font-size:10px;font-weight:700;letter-spacing:.01em;padding:5px 4px;border-radius:12px;touch-action:manipulation}
+  .dock-control:first-child{color:#a4d8ff}
+  .dock-control[aria-pressed="true"]{background:rgba(83,166,255,.17);color:#fff}
+  .dock-control:active{background:rgba(83,166,255,.12)}
+  .dock-symbol{font-size:20px;line-height:23px;font-weight:700}
+  .cinema-mode .video-stage{padding:0;min-height:0}
+  .cinema-mode .poster-symbol{display:grid}
+  .cinema-mode .poster-center h2{font-size:clamp(28px,7vw,47px)}
+  .cinema-mode .poster-center p{font-size:13px}
+  .cinema-mode .countdown{margin-top:23px}
+  .cinema-mode .countdown>div{min-width:60px;padding:11px 7px}
+  .cinema-caption{padding:75px 16px calc(22px + env(safe-area-inset-bottom))}
+}
+@media(max-width:360px) {
+  .viewer-body .broadcast-actions{flex-direction:column}
+  .viewer-body .broadcast-actions .experience-button{width:100%}
+  .viewer-body .poster-center p{display:none}
+}
+@media(orientation:landscape) and (max-height:520px){
+  .viewer-body:not(.cinema-mode) .countdown{display:none}
+  .viewer-body:not(.cinema-mode) .poster-symbol{display:none}
+  .viewer-body:not(.cinema-mode) .poster-center h2{font-size:24px;margin:8px 0}
+  .viewer-body:not(.cinema-mode) .poster-center p{display:none}
+  .viewer-body:not(.cinema-mode) .countdown{margin-top:10px}
+  .viewer-body:not(.cinema-mode) .countdown>div{padding:5px 8px}
+  .viewer-body:not(.cinema-mode) .countdown strong{font-size:20px}
+  .cinema-mode .poster-symbol{display:none}
+  .cinema-mode .poster-center h2{font-size:clamp(25px,4vw,42px)}
+  .cinema-mode .poster-center p{display:none}
+  .cinema-mode .countdown{margin-top:13px}
+  .cinema-mode .video-badge{top:12px;left:12px}
+}
+@media(prefers-reduced-motion:reduce) {.mobile-dock{transition:none}}
+
+/* One quiet, inline share action to the right of the approved event.
+   No YouTube exit link or redundant mobile-dock share control. */
+.viewer-body .broadcast-bar{position:absolute;z-index:5;left:0;right:0;bottom:0;flex-direction:row;align-items:center;gap:12px;padding:9px 20px;border-top:1px solid rgba(164,198,242,.18)}
+.viewer-body .broadcast-details{flex:1;min-width:0}
+.viewer-body .broadcast-details h1{font-size:18px;line-height:1.2;margin:4px 0}
+.viewer-body .broadcast-state{gap:8px}
+.viewer-body .status-chip{padding:5px 9px;font-size:9px}
+.viewer-body .event-clock{font-size:10px}
+.viewer-body .church-line{font-size:10px}
+.viewer-body .church-avatar{width:20px;height:20px}
+.viewer-body .broadcast-actions{flex:0 0 auto;display:flex;align-items:center;gap:7px;flex-wrap:nowrap}
+.viewer-body .broadcast-icon-button{width:46px;height:46px;min-width:46px;min-height:46px;display:inline-grid;place-items:center;padding:0;border-radius:13px;border:1px solid rgba(147,185,245,.18);background:rgba(54,91,139,.17);color:#c7e3ff;cursor:pointer;transition:background .18s,border-color .18s,transform .18s;touch-action:manipulation}
+.viewer-body .broadcast-icon-button svg{width:20px;height:20px;display:block}
+.viewer-body .broadcast-icon-button:hover{background:rgba(71,133,211,.3);border-color:rgba(119,185,252,.5);transform:translateY(-1px)}
+.viewer-body .broadcast-icon-button:focus-visible{outline:2px solid #82cfff;outline-offset:3px}
+.viewer-body .broadcast-icon-button.share-icon-button{border-color:rgba(106,173,249,.3);background:rgba(50,115,197,.20);color:#a9d8ff}
+@media(max-width:700px){
+ .viewer-body .video-stage{height:clamp(300px,44svh,390px);max-height:calc(100svh - 150px - env(safe-area-inset-top) - env(safe-area-inset-bottom));aspect-ratio:auto}
+ .viewer-body .poster-center{transform:translateY(-40px)}
+ .viewer-body .poster-center p{display:none}
+ .viewer-body .broadcast-bar{flex-direction:row;align-items:flex-start;padding:6px 10px calc(6px + env(safe-area-inset-bottom));gap:6px}
+ .viewer-body .broadcast-actions{width:auto;flex:none;gap:0;align-self:center}
+ .viewer-body .broadcast-actions #theater-button{display:none}
+ .viewer-body .broadcast-details h1{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere;font-size:12px;line-height:1.2;margin:3px 0}
+ .viewer-body .broadcast-state{gap:5px}
+ .viewer-body .status-chip{padding:3px 6px;font-size:7px}
+ .viewer-body .event-clock{font-size:8px}
+ .viewer-body .church-line{font-size:8px;gap:4px}
+ .viewer-body .church-avatar{width:15px;height:15px}
+ .viewer-body .broadcast-icon-button{width:44px;height:44px;min-height:44px;min-width:44px}
+}
+@media(max-width:360px){
+ .viewer-body .broadcast-bar{flex-direction:row;align-items:flex-start}
+ .viewer-body .broadcast-actions{flex-direction:row}
+}
+@media(max-width:700px) and (orientation:landscape) and (max-height:520px){
+ .viewer-body .video-stage{width:100%;height:auto;max-height:calc(100svh - 150px - env(safe-area-inset-top) - env(safe-area-inset-bottom));aspect-ratio:16/9}
+ .viewer-body .poster-center{transform:translateY(-36px)}
+ .viewer-body .broadcast-bar{padding:5px 9px}
+ .viewer-body .broadcast-details h1{font-size:13px;margin:3px 0}
+ .viewer-body .status-chip{padding:3px 7px}
+ .viewer-body .church-line{font-size:9px}
+ .viewer-body .church-avatar{display:none}
+}
+
+/* The regular viewer frame follows YouTube's native 16:9 video proportion. */
+.viewer-body .video-stage{aspect-ratio:16/9}
+.viewer-body .site-footer{justify-content:center;align-items:center;flex-wrap:wrap;gap:4px 10px;text-align:center}
+@media(max-width:700px){
+ .viewer-body .site-footer{flex-direction:row;align-items:center;justify-content:center;padding-bottom:calc(105px + env(safe-area-inset-bottom))}
+}
+
+/* Four-option event share menu from the single inline icon. */
+.share-anchor{position:relative;display:inline-flex;flex:none;z-index:20}
+.share-menu{position:fixed;top:0;left:0;right:auto;bottom:auto;width:244px;max-width:calc(100vw - 30px);max-height:calc(100dvh - 20px);overflow-y:auto;
+ padding:9px;background:#122137;border:1px solid rgba(159,206,255,.27);box-shadow:0 20px 60px rgba(0,0,0,.56);border-radius:17px;z-index:150}
+.share-menu[hidden]{display:none!important}
+.share-menu-heading{color:#87a7cf;font-size:9px;font-weight:850;letter-spacing:.14em;padding:12px 12px 8px}
+.share-menu a,.share-menu button{color:#e4efff;text-decoration:none;width:100%;border:0;background:transparent;
+ display:flex;align-items:center;gap:11px;text-align:left;min-height:44px;padding:8px 11px;
+ border-radius:10px;font-size:12px;font-weight:760;cursor:pointer}
+.share-menu a:hover,.share-menu button:hover,.share-menu a:focus-visible,.share-menu button:focus-visible{background:#254365;outline:none}
+.social-mark{width:26px;height:26px;display:grid;place-items:center;border-radius:8px;font-weight:850;font-size:16px;flex-shrink:0}
+.social-mark.whatsapp{background:#153b32;color:#8aecc8}
+.social-mark.x{background:#25344b;color:#f5faff}
+.social-mark.facebook{background:#1b3a6b;color:#aad0ff;font-size:21px}
+.copy-symbol{width:24px;height:24px;stroke:#a3d0ff;flex-shrink:0}
+.menu-arrow{margin-left:auto;color:#85a6d0}
+.share-separator{height:1px;background:rgba(149,195,246,.14);margin:7px 8px}
+.viewer-body .experience-frame{overflow:hidden}
+
+/* Single live state: a softly expanding beacon beside the featured event title. */
+.viewer-body .status-chip.live{display:inline-flex;gap:9px;align-items:center}
+.live-signal{position:relative;display:inline-block;width:8px;height:8px;flex-shrink:0;border-radius:50%;background:#ff526d}
+.live-signal:not([hidden])::after{content:"";position:absolute;inset:-1px;border-radius:50%;border:1.4px solid rgba(255,89,118,.65);animation:ekko-signal-ring 2s ease-out infinite}
+@keyframes ekko-signal-ring{0%{transform:scale(1);opacity:1}80%,100%{transform:scale(3.15);opacity:0}}
+@media(prefers-reduced-motion:reduce){.live-signal::after{animation:none!important;opacity:.7}}
+
+/* A single pulsing live beacon communicates broadcasting without repeated
+   "Live now" or "On air" text. Accessible meaning remains in aria-label. */
+.viewer-body .status-chip.live{width:36px;height:32px;justify-content:center;padding:0}
+.viewer-body .status-chip.live .live-signal{width:9px;height:9px}
+
+/* The frame must be exactly as wide as the native 16:9 player. The viewport
+   height limit reduces WIDTH rather than producing unused side gutters or
+   stretching mobile video stages beyond the YouTube iframe. */
+.viewer-body:not(.cinema-mode) .experience-frame{
+  width:min(100%,calc(177.7778svh - 213.333px));
+  margin-inline:auto;
+}
+.viewer-body:not(.cinema-mode) .video-stage{
+  width:100%;
+  height:auto;
+  min-height:0;
+  max-height:none;
+  aspect-ratio:16/9;
+}
+
+/* Give the connected YouTube channel its own circular identity in the event bar. */
+.viewer-body .church-avatar{width:22px;height:22px;border-radius:50%;overflow:hidden;flex-shrink:0}
+.viewer-body .church-avatar img{width:100%;height:100%;display:block;object-fit:cover;border-radius:50%}
+@media(max-width:700px){.viewer-body .church-avatar{width:19px;height:19px}}
+
+/* Mobile viewer: retain YouTube's 16:9 canvas while giving the event card
+   enough contrast and room to read at phone widths. */
+@media(max-width:700px){
+  .viewer-body{min-height:100svh;display:flex;flex-direction:column}
+  .viewer-body .site-header{padding-top:calc(12px + env(safe-area-inset-top));padding-bottom:12px;min-height:62px}
+  .viewer-body .brand-image{width:118px}
+  .viewer-body .header-status{display:none}
+  .viewer-body .viewer-main{width:calc(100% - 18px);flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;padding-block:12px}
+  .viewer-body:not(.cinema-mode) .experience-frame{width:min(100%,calc((100svh - 180px - env(safe-area-inset-top) - env(safe-area-inset-bottom))*1.777778));margin:0 auto}
+  .viewer-body .experience-frame{border-radius:16px;border-color:rgba(142,190,248,.22);box-shadow:0 14px 38px rgba(0,0,0,.38)}
+  .viewer-body .video-stage{width:100%;height:auto;max-height:none;aspect-ratio:16/9}
+  .viewer-body .poster-stage>img{opacity:.22;filter:saturate(.72)}
+  .viewer-body .poster-shade{background:linear-gradient(180deg,rgba(5,12,25,.46),rgba(5,12,25,.66) 58%,rgba(5,12,25,.78))}
+  .viewer-body .poster-center{max-width:100%;padding:8px 10px;transform:translateY(-23px)}
+  .viewer-body .poster-eyebrow{font-size:8px;letter-spacing:.19em}
+  .viewer-body .poster-center h2{font-size:clamp(19px,5.4vw,25px);line-height:1.08;margin:7px 0}
+  .viewer-body .poster-center p{display:none}
+  .viewer-body .countdown{gap:5px;margin-top:8px}
+  .viewer-body .countdown>div{min-width:43px;padding:5px 5px;border-radius:8px;background:rgba(7,18,37,.86)}
+  .viewer-body .countdown strong{font-size:17px}
+  .viewer-body .countdown small{font-size:6px;letter-spacing:.15em}
+  .viewer-body .broadcast-bar{padding:7px 9px calc(7px + env(safe-area-inset-bottom));gap:7px;align-items:center;background:linear-gradient(180deg,rgba(9,18,33,.92),rgba(6,12,23,.98));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+  .viewer-body .broadcast-details h1{font-size:12px;line-height:1.22;margin:4px 0;overflow-wrap:anywhere}
+  .viewer-body .broadcast-state{gap:6px}
+  .viewer-body .status-chip{font-size:7px;padding:3px 6px;letter-spacing:.08em}
+  .viewer-body .event-clock{font-size:8px}
+  .viewer-body .church-line{font-size:8px;gap:5px}
+  .viewer-body .church-avatar{width:17px;height:17px;border-radius:6px}
+  .viewer-body .church-avatar img{width:12px}
+  .viewer-body .broadcast-icon-button{width:40px;height:40px;min-width:40px;min-height:40px;border-radius:11px}
+  .viewer-body .viewer-bottom{margin:16px auto 12px;padding-inline:2px}
+  .viewer-body .mission-text p{font-size:9px;letter-spacing:.015em;white-space:normal;text-align:center;color:#a8bdd8}
+  .viewer-body .site-footer{min-height:36px;padding:10px 0 calc(82px + env(safe-area-inset-bottom));font-size:8px;letter-spacing:.12em;gap:4px 7px}
+}
+@media(max-width:380px){
+  .viewer-body .broadcast-details h1{font-size:11px}
+  .viewer-body .broadcast-icon-button{width:36px;height:36px;min-width:36px;min-height:36px}
+  .viewer-body .countdown>div{min-width:39px;padding:4px}
+}
+
+/* Keep every pixel of the native 16:9 thumbnail unobstructed. Event details
+   and controls live in a compact strip immediately below the player. */
+.viewer-body:not(.cinema-mode) .experience-frame{
+  width:min(100%,calc(177.7778svh - 498px));
+  margin-inline:auto;
+}
+.viewer-body .broadcast-bar{
+  position:relative;
+  z-index:5;
+  inset:auto;
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  gap:12px;
+  padding:10px 16px;
+  border-top:1px solid rgba(164,198,242,.18);
+  background:linear-gradient(180deg,rgba(11,19,34,.98),rgba(8,14,26,1));
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+}
+.viewer-body.cinema-mode .broadcast-bar{display:none!important}
+@media(max-width:700px){
+  .viewer-body:not(.cinema-mode) .experience-frame{
+    width:min(100%,calc((100svh - 280px - env(safe-area-inset-top) - env(safe-area-inset-bottom))*1.777778));
+  }
+  .viewer-body .broadcast-bar{
+    align-items:center;
+    padding:8px 10px;
+    gap:7px;
+  }
+}
+@media(max-width:700px) and (orientation:landscape) and (max-height:520px){
+  .viewer-body:not(.cinema-mode) .experience-frame{
+    width:min(100%,calc((100svh - 190px - env(safe-area-inset-top) - env(safe-area-inset-bottom))*1.777778));
+  }
+}

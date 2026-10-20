@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#080c18">
+  <meta name="robots" content="noindex, nofollow">
+  <title>EKKO Studio — Faith Through Hearing.</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/icon.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/studio.css">
+  <script src="/admin.js" defer></script>
+</head>
+<body class="studio-body">
+  <div class="ambient ambient-studio"></div>
+
+  <main id="login-screen" class="login-layout" hidden>
+    <section class="login-story">
+      <a href="/" class="studio-logo" aria-label="EKKO home"><img src="/assets/logo-light.svg" alt="EKKO" width="190"></a>
+      <div class="story-content">
+        <div class="signal-label"><span class="signal-led"></span> EKKO BROADCAST STUDIO</div>
+        <h1>Every gathering deserves <em>an exceptional experience.</em></h1>
+        <p>One channel. Every moment. Beautifully delivered to your community.</p>
+        <div class="story-visual" aria-hidden="true"><span class="orbit orbit-one"></span><span class="orbit orbit-two"></span><span class="orbit orbit-three"></span><img src="/assets/icon.svg" alt=""></div>
+      </div>
+      <div class="login-story-bottom"><span>© 2026 EKKO</span></div>
+    </section>
+    <section class="login-form-area">
+      <div class="login-card">
+        <div class="login-icon"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M8 10V7a4 4 0 018 0v3" stroke="currentColor" stroke-width="1.7"/></svg></div>
+        <div class="micro-label">PRIVATE STUDIO ACCESS</div>
+        <h2>Welcome back.</h2>
+        <p>Sign in to manage your church's live broadcasting experience.</p>
+        <form id="login-form" class="studio-form">
+          <label for="password">Administrator password</label>
+          <div class="password-wrap"><input id="password" type="password" autocomplete="current-password" placeholder="Enter studio password" required>
+            <button id="toggle-password" type="button" aria-label="Show or hide password">Show</button>
+          </div>
+          <button class="studio-button primary wide" type="submit"><span>Enter Studio</span><span aria-hidden="true">↗</span></button>
+        </form>
+        <p id="login-feedback" class="studio-feedback" role="status" aria-live="polite"></p>
+        <div class="login-note"><span class="shield-dot"></span> Secure administration. Your viewers never need to sign in.</div>
+      </div>
+      <a class="login-return" href="/">← Return to EKKO Live</a>
+    </section>
+  </main>
+
+  <div id="studio-dashboard" hidden>
+    <header class="studio-topbar container">
+      <a href="/" aria-label="EKKO home"><img class="brand-image" src="/assets/logo-light.svg" alt="EKKO" width="166"></a>
+      <span class="studio-topbar-tag"><span class="signal-led"></span> BROADCAST STUDIO <span class="studio-version">/ v0.1</span></span>
+      <div class="studio-topbar-actions">
+        <a href="/" target="_blank" rel="noopener noreferrer" class="studio-icon-action" aria-label="View public EKKO page" title="View EKKO live page"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M10 14 20 4"/><path d="M20 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5"/></svg></a>
+        <button id="logout-button" type="button" class="studio-icon-action" aria-label="Sign out" title="Sign out"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17l5-5-5-5M15 12H3"/><path d="M12 4h6a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6"/></svg></button>
+      </div>
+    </header>
+    <main class="container studio-main">
+      <section class="studio-intro">
+        <div class="micro-label">THE BROADCAST CONTROL ROOM <span class="light-separator">/</span> FAITH THROUGH HEARING.</div>
+        <div class="studio-heading-row"><div><h1>Every gathering deserves<br><span>an exceptional experience.</span></h1><p>One channel. Every moment. Beautifully delivered to your community.</p></div></div>
+      </section>
+      <p id="admin-feedback" class="studio-feedback admin-feedback" role="status" aria-live="polite"></p>
+      <div class="studio-workspace">
+        <section class="studio-panel channel-panel">
+          <div class="panel-header"><div class="panel-icon">01</div><div><div class="micro-label">CHANNEL CONNECTION</div><h2>Your YouTube channel</h2></div><span id="channel-state" class="mini-status">NOT CONNECTED</span></div>
+          <p class="panel-hint">One church, one channel. Find it using its name, @handle, or YouTube URL. EKKO identifies the Channel ID automatically.</p>
+          <div id="channel-connected" class="connected-channel" hidden>
+            <div class="connected-channel-main">
+              <div class="channel-avatar" id="connected-avatar"><img id="connected-avatar-img" alt="" hidden><span id="connected-avatar-placeholder">▶</span></div>
+              <div class="channel-profile-copy"><strong id="connected-name"></strong><small id="connected-handle"></small><span class="channel-linked"><span class="signal-led"></span> Connected to EKKO</span></div>
+            </div>
+            <button id="change-channel" class="studio-icon-action channel-replace" type="button" title="Replace connected channel" aria-label="Replace connected YouTube channel"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9a4 4 0 0 0-4 4v1m0-5 3-3 3 3M4 17h9a4 4 0 0 0 4-4v-1m0 5-3 3-3-3"/></svg></button>
+            <p class="field-hint">You can replace this channel whenever needed. EKKO will ask before clearing its approved broadcast and discoveries.</p>
+          </div>
+          <div id="channel-search-panel">
+            <form id="channel-form" class="studio-form">
+              <label for="channel-search">Find your church's YouTube channel</label>
+              <div class="channel-search-row">
+                <input id="channel-search" type="search" maxlength="150" placeholder="@YourChurch or channel name" spellcheck="false" autocomplete="off" required>
+                <button id="find-channel" class="channel-search-submit" type="submit" aria-label="Search YouTube channels" title="Search YouTube channels"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></button>
+              </div>
+              <p class="field-hint">One search field for both channel names and @handles. You'll confirm the correct channel before connecting.</p>
+            </form>
+            <div id="channel-search-status" class="channel-search-status" role="status" aria-live="polite"></div>
+            <div id="channel-search-results" class="channel-search-results" aria-label="Matching YouTube channels"></div>
+            <button id="cancel-channel-change" class="studio-icon-action channel-cancel" type="button" title="Cancel replacing channel" aria-label="Cancel channel replacement" hidden><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+          </div>
+          <div class="connection-footer"><span class="status-dot"></span><span id="connection-details">Search for a channel to start discovery.</span></div>
+        </section>
+        <section class="studio-panel featured-panel">
+          <div class="panel-header"><div class="panel-icon">02</div><div><div class="micro-label">PUBLIC BROADCAST</div><h2>Featured broadcast</h2></div><span id="featured-status" class="mini-status">NONE APPROVED</span></div>
+          <div id="featured-empty" class="featured-empty">
+            <div class="empty-emblem"><img src="/assets/icon.svg" alt=""></div>
+            <h3>Ready when you are.</h3>
+            <p>Approve a discovered broadcast below. Until then, viewers see the EKKO welcome experience.</p>
+          </div>
+          <div id="featured-active" hidden>
+            <div class="featured-visual"><img id="featured-thumbnail" alt="Featured event artwork" hidden></div>
+            <h3 id="featured-title"></h3>
+            <p id="featured-time" class="muted-text"></p>
+            <div class="featured-controls">
+              <label for="manual-status">Status control</label>
+              <select id="manual-status"><option value="auto">Automatic (YouTube verified)</option><option value="scheduled">Upcoming (manual)</option><option value="live">Live (manual)</option><option value="ended">Ended (manual)</option></select>
+              <button id="withdraw-button" class="studio-icon-action withdraw-action" type="button" title="Remove approved event from public page" aria-label="Remove approved event from public page"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6m4-6v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
+            </div>
+          </div>
+        </section>
+      </div>
+      <section class="studio-panel queue-panel">
+        <div class="queue-top">
+          <div><div class="micro-label">03 / CONTENT REVIEW</div><h2>Discovered broadcasts <span id="candidate-count" class="count-bubble">0</span></h2><p>YouTube updates appear here for review. <strong>Only approved events reach the public site.</strong></p></div>
+          <div class="queue-actions"><span id="last-check" class="muted-text"></span><button id="refresh-button" class="studio-icon-action" type="button" title="Check YouTube for broadcasts" aria-label="Check YouTube for broadcasts"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-1.8 5M20 5v6h-6"/></svg></button></div>
+        </div>
+        <div id="no-api" class="studio-warning" hidden>Set <code>YOUTUBE_API_KEY</code> on the EKKO server to enable broadcast discovery and synchronization.</div>
+        <div id="candidate-list" class="candidate-grid" aria-live="polite"></div>
+        <div id="candidate-empty" class="queue-empty"><img src="/assets/icon.svg" alt=""><h3>Nothing waiting for review</h3><p>New scheduled and live broadcasts from the configured channel will appear here automatically.</p></div>
+      </section>
+      <footer class="studio-footer">© 2026 EKKO</footer>
+    </main>
+  </div>
+</body>
+</html>
