@@ -24,3 +24,9 @@ gradle --project-dir apps/tv -PEKKO_HLS_URL=https://example.invalid/live.m3u8 :a
 If no URL is provided, the app opens in its waiting-for-broadcast state. Install the generated `app/build/outputs/apk/debug/app-debug.apk` on an Android TV device or emulator.
 
 The Android module uses Gradle 8.13, JDK 17, and Android SDK 36.
+
+## Build and upload an APK
+
+The automatic **Android TV CI** workflow checks PRs and pushes to `main`. To upload a build, open **Actions → Android TV APK → Run workflow** and choose the branch. The manual workflow builds a debug APK, creates a SHA-256 checksum, then uploads a versioned copy and an `Ekko-TV-latest.apk` copy with their checksum files to the shared Google Drive APK folder.
+
+The Ekko repository needs the `GDRIVE_RCLONE_CONFIG` secret, or the fallback `KITECHTV_RCLONE_CONFIG`, containing the same rclone Google Drive configuration used by Deepen. Configure it in **Settings → Secrets and variables → Actions**. The workflow fails with a clear error if neither secret is available. The APK is a debug build for testing/sideloading and is not signed as a Play Store release.
