@@ -11,7 +11,11 @@ let currentEvent=null;
 const formatDate=iso=>{
   if(!iso)return "";
   const time=new Date(iso);
-  return Number.isFinite(time.getTime())?new Intl.DateTimeFormat(undefined,{dateStyle:"full",timeStyle:"short"}).format(time):"";
+  if(!Number.isFinite(time.getTime()))return "";
+  const options=window.matchMedia("(max-width: 700px)").matches?
+    {weekday:"short",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}:
+    {dateStyle:"full",timeStyle:"short"};
+  return new Intl.DateTimeFormat(undefined,options).format(time);
 };
 function updateCountdown(){
   const target=currentEvent?.status==="scheduled" ? Date.parse(currentEvent.scheduledStartAt) : NaN;

@@ -6,7 +6,7 @@
 .viewer-body .experience-frame{background:#081324}
 /* Keep the complete player above the fold, allowing for the header and
    browser chrome. The iframe fits this area without cropping the video. */
-.viewer-body .video-stage{width:100%;aspect-ratio:16/9;max-height:calc(100svh - 120px)}
+.viewer-body .video-stage{width:min(100%,calc(177.7778svh - 213.333px));aspect-ratio:16/9;max-height:calc(100svh - 120px);margin-inline:auto}
 .viewer-body .poster-image{object-position:center 40%}
 .viewer-body .player-host iframe{width:100%;height:100%}
 .viewer-body .experience-frame{box-shadow:0 22px 96px rgba(0,0,0,.54),0 0 110px rgba(25,92,176,.11)}
@@ -41,7 +41,7 @@ body:not(.cinema-mode) .theater-exit,body:not(.cinema-mode) .cinema-caption{disp
   .viewer-body .viewer-main{padding-bottom:0}
   .viewer-body.has-event .experience-frame{margin-top:3px}
   .viewer-body .experience-frame{border-radius:17px}
-  .viewer-body .video-stage{max-height:calc(100svh - 150px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
+  .viewer-body .video-stage{width:100%;max-width:100%;aspect-ratio:16/9;height:auto;max-height:calc(100svh - 150px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
   .viewer-body .poster-center{max-width:88%;padding:10px}
   .viewer-body .poster-symbol{display:none}
   .viewer-body .poster-center h2{font-size:clamp(18px,5.7vw,29px);margin:7px 0}
@@ -112,15 +112,15 @@ body:not(.cinema-mode) .theater-exit,body:not(.cinema-mode) .cinema-caption{disp
 @media(max-width:700px){
  .viewer-body .video-stage{height:clamp(300px,44svh,390px);max-height:calc(100svh - 150px - env(safe-area-inset-top) - env(safe-area-inset-bottom));aspect-ratio:auto}
  .viewer-body .poster-center{transform:translateY(-48px)}
- .viewer-body .broadcast-bar{flex-direction:row;align-items:flex-start;padding:12px 14px calc(12px + env(safe-area-inset-bottom));gap:9px}
+  .viewer-body .broadcast-bar{flex-direction:row;align-items:flex-start;padding:7px 10px calc(7px + env(safe-area-inset-bottom));gap:6px}
  .viewer-body .broadcast-actions{width:auto;flex:none;gap:0;align-self:center}
  .viewer-body .broadcast-actions #theater-button{display:none}
- .viewer-body .broadcast-details h1{overflow-wrap:anywhere;font-size:16px;line-height:1.2;margin:5px 0}
- .viewer-body .broadcast-state{gap:7px}
- .viewer-body .status-chip{padding:5px 8px;font-size:8px}
- .viewer-body .event-clock{font-size:9px}
- .viewer-body .church-line{font-size:10px;gap:6px}
- .viewer-body .church-avatar{width:21px;height:21px}
+  .viewer-body .broadcast-details h1{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere;font-size:13px;line-height:1.2;margin:4px 0}
+  .viewer-body .broadcast-state{gap:6px}
+  .viewer-body .status-chip{padding:3px 7px;font-size:8px}
+  .viewer-body .event-clock{font-size:9px}
+  .viewer-body .church-line{font-size:9px;gap:5px}
+  .viewer-body .church-avatar{width:17px;height:17px}
  .viewer-body .broadcast-icon-button{width:44px;height:44px;min-height:44px;min-width:44px}
 }
 @media(max-width:360px){
@@ -128,13 +128,23 @@ body:not(.cinema-mode) .theater-exit,body:not(.cinema-mode) .cinema-caption{disp
  .viewer-body .broadcast-actions{flex-direction:row}
 }
 @media(max-width:700px) and (orientation:landscape) and (max-height:520px){
- .viewer-body .video-stage{height:clamp(210px,60svh,280px)}
+ .viewer-body .video-stage{width:100%;height:auto;max-height:calc(100svh - 150px - env(safe-area-inset-top) - env(safe-area-inset-bottom));aspect-ratio:16/9}
  .viewer-body .poster-center{transform:translateY(-36px)}
- .viewer-body .broadcast-bar{padding:7px 12px}
+ .viewer-body .broadcast-bar{padding:5px 9px}
  .viewer-body .broadcast-details h1{font-size:13px;margin:3px 0}
  .viewer-body .status-chip{padding:3px 7px}
  .viewer-body .church-line{font-size:9px}
  .viewer-body .church-avatar{display:none}
+}
+
+/* The regular viewer frame follows YouTube's native 16:9 video proportion. */
+.viewer-body .video-stage{aspect-ratio:16/9}
+.viewer-body .viewer-bottom{display:block;max-width:1360px;margin:19px auto 24px;padding-inline:12px}
+.viewer-body .mission-text p{margin:0;white-space:nowrap;font-size:clamp(8px,2.4vw,11px);letter-spacing:.02em;line-height:1.5}
+.viewer-body .site-footer{justify-content:center;align-items:center;flex-wrap:wrap;gap:4px 10px;text-align:center}
+@media(max-width:700px){
+ .viewer-body .viewer-bottom{margin:12px auto 18px;padding-inline:0}
+ .viewer-body .site-footer{flex-direction:row;align-items:center;justify-content:center;padding-bottom:calc(105px + env(safe-area-inset-bottom))}
 }
 
 /* Four-option event share menu from the single inline icon. */
