@@ -214,7 +214,13 @@ test("installable app shell, theater actions and Studio remain separate",async()
     assert.match(page,/mobile-dock/);
     assert.match(page,/theater-button/);
     assert.match(page,/theater-exit/);
-    assert.match(page,/\/immersive\.css/);
+    assert.match(page,/\/immersive\\.css/);
+    assert.doesNotMatch(page,/We create one beautiful place to experience faith together|Presence is more than proximity|MORE THAN A STREAM|class="viewer-bottom"/);
+    assert.match(page,/<footer class="site-footer container">© 2026 EKKO<\/footer>/);
+    response=await fetch(base+"/styles.css");
+    assert.equal(response.status,200);
+    const viewerCss=await response.text();
+    assert.match(viewerCss,/\.site-footer\{border-top:0;/);
     response=await fetch(base+"/viewer.js");
     const viewer=await response.text();
     assert.match(viewer,/requestFullscreen/);

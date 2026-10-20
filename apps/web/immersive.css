@@ -57,8 +57,6 @@ body:not(.cinema-mode) .theater-exit,body:not(.cinema-mode) .cinema-caption{disp
   .viewer-body .broadcast-actions{display:flex;gap:9px}
   .viewer-body .broadcast-actions .experience-button{flex:1 1 42%;font-size:12px}
   .viewer-body .broadcast-actions #theater-button{display:none}
-  .viewer-body .viewer-bottom{margin:37px 7px 40px}
-  .viewer-body .mission-text h2{font-size:18px}
   .viewer-body .mission-aside{display:none}
   .viewer-body .site-footer{padding-bottom:calc(105px + env(safe-area-inset-bottom))}
   .mobile-dock{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:35;justify-content:space-around;align-items:stretch;
@@ -147,11 +145,8 @@ body:not(.cinema-mode) .theater-exit,body:not(.cinema-mode) .cinema-caption{disp
 
 /* The regular viewer frame follows YouTube's native 16:9 video proportion. */
 .viewer-body .video-stage{aspect-ratio:16/9}
-.viewer-body .viewer-bottom{display:block;max-width:1360px;margin:19px auto 24px;padding-inline:12px}
-.viewer-body .mission-text p{margin:0;white-space:nowrap;font-size:clamp(8px,2.4vw,11px);letter-spacing:.02em;line-height:1.5}
 .viewer-body .site-footer{justify-content:center;align-items:center;flex-wrap:wrap;gap:4px 10px;text-align:center}
 @media(max-width:700px){
- .viewer-body .viewer-bottom{margin:12px auto 18px;padding-inline:0}
  .viewer-body .site-footer{flex-direction:row;align-items:center;justify-content:center;padding-bottom:calc(105px + env(safe-area-inset-bottom))}
 }
 
