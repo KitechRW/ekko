@@ -1,6 +1,13 @@
 package rw.kitech.ekko.tv
 
 import androidx.activity.compose.BackHandler
+import android.os.Handler
+import android.os.Looper
+import android.webkit.CookieManager
+import android.webkit.JavascriptInterface
+import android.webkit.WebChromeClient
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -26,7 +33,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
@@ -42,23 +48,17 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.media3.common.MediaItem
-import androidx.media3.common.Player
-import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.ui.AspectRatioFrameLayout
-import androidx.media3.ui.PlayerView
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Text
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlinx.coroutines.delay
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -113,99 +113,17 @@ private val reactionOptions = listOf(
 
 @Composable
 fun LivePlayerScreen(
-    streamUrl: String,
+    youtubeVideoId: String,
     broadcast: LiveBroadcast,
     onReactionSent: (String) -> Unit = {},
 ) {
-    val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val appContext = remember(context) { context.applicationContext }
-
-    var playbackStatus by remember(streamUrl) {
-        mutableStateOf(if (streamUrl.isBlank()) PlaybackStatus.WAITING else PlaybackStatus.CONNECTING)
+    var playbackStatus by remember(youtubeVideoId) {
+        mutableStateOf(if (youtubeVideoId.isBlank()) PlaybackStatus.WAITING else PlaybackStatus.CONNECTING)
     }
-    var retryRequest by remember { mutableIntStateOf(0) }
     var reactionsVisible by remember { mutableStateOf(false) }
     var interactionVersion by remember { mutableIntStateOf(0) }
     var sentReaction by remember { mutableStateOf<String?>(null) }
     var currentClock by remember { mutableStateOf(LocalTime.now()) }
-
-    val latestStatus by rememberUpdatedState(playbackStatus)
-    val player = remember(streamUrl) {
-        streamUrl.takeIf(String::isNotBlank)?.let { url ->
-            ExoPlayer.Builder(appContext).build().apply {
-                val liveItem = MediaItem.Builder()
-                    .setUri(url)
-                    .setLiveConfiguration(
-                        MediaItem.LiveConfiguration.Builder()
-                            .setTargetOffsetMs(5_000)
-                            .build(),
-                    )
-                    .build()
-                setMediaItem(liveItem)
-            }
-        }
-    }
-
-    val listener = remember(player) {
-        object : Player.Listener {
-            override fun onPlaybackStateChanged(playbackState: Int) {
-                if (latestStatus == PlaybackStatus.RECONNECTING) return
-                playbackStatus = when (playbackState) {
-                    Player.STATE_BUFFERING -> PlaybackStatus.BUFFERING
-                    Player.STATE_READY -> if (player?.isPlaying == true) PlaybackStatus.LIVE else PlaybackStatus.BUFFERING
-                    Player.STATE_ENDED -> PlaybackStatus.OFFLINE
-                    else -> PlaybackStatus.CONNECTING
-                }
-            }
-
-            override fun onIsPlayingChanged(isPlaying: Boolean) {
-                if (isPlaying) {
-                    playbackStatus = PlaybackStatus.LIVE
-                } else if (player?.playbackState == Player.STATE_BUFFERING) {
-                    playbackStatus = PlaybackStatus.BUFFERING
-                }
-            }
-
-            override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
-                playbackStatus = PlaybackStatus.RECONNECTING
-                retryRequest += 1
-            }
-        }
-    }
-
-    DisposableEffect(player, lifecycleOwner) {
-        player?.addListener(listener)
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_START -> player?.play()
-                Lifecycle.Event.ON_STOP -> player?.pause()
-                else -> Unit
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-
-        if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
-            player?.prepare()
-            player?.play()
-        }
-
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-            player?.removeListener(listener)
-            player?.release()
-        }
-    }
-
-    LaunchedEffect(player, retryRequest) {
-        if (player != null && retryRequest > 0) {
-            delay(3_000)
-            playbackStatus = PlaybackStatus.CONNECTING
-            player.seekToDefaultPosition()
-            player.prepare()
-            player.play()
-        }
-    }
 
     LaunchedEffect(Unit) {
         while (true) {
@@ -276,20 +194,21 @@ fun LivePlayerScreen(
             .focusRequester(rootFocusRequester)
             .focusable(),
     ) {
-        if (player != null) {
-            AndroidView(
+        if (youtubeVideoId.isNotBlank()) {
+            YouTubePlayer(
+                videoId = youtubeVideoId,
                 modifier = Modifier.fillMaxSize(),
-                factory = { viewContext ->
-                    PlayerView(viewContext).apply {
-                        useController = false
-                        resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
-                        this.player = player
-                        keepScreenOn = true
-                        setShowBuffering(PlayerView.SHOW_BUFFERING_NEVER)
-                        setShutterBackgroundColor(android.graphics.Color.BLACK)
+                onPlaybackState = { state ->
+                    playbackStatus = when (state) {
+                        1 -> PlaybackStatus.LIVE
+                        3 -> PlaybackStatus.BUFFERING
+                        0 -> PlaybackStatus.OFFLINE
+                        else -> PlaybackStatus.CONNECTING
                     }
                 },
-                update = { view -> view.player = player },
+                onPlaybackError = {
+                    playbackStatus = PlaybackStatus.OFFLINE
+                },
             )
         }
 
@@ -423,6 +342,132 @@ fun LivePlayerScreen(
         )
     }
 }
+
+@Composable
+private fun YouTubePlayer(
+    videoId: String,
+    modifier: Modifier = Modifier,
+    onPlaybackState: (Int) -> Unit,
+    onPlaybackError: () -> Unit,
+) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var webView by remember(videoId) { mutableStateOf<WebView?>(null) }
+
+    AndroidView(
+        modifier = modifier,
+        factory = { viewContext ->
+            WebView(viewContext).apply {
+                settings.javaScriptEnabled = true
+                settings.domStorageEnabled = true
+                settings.mediaPlaybackRequiresUserGesture = false
+                webViewClient = WebViewClient()
+                webChromeClient = WebChromeClient()
+                CookieManager.getInstance().setAcceptCookie(true)
+                CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
+                addJavascriptInterface(
+                    YouTubePlaybackBridge(onPlaybackState, onPlaybackError),
+                    "AndroidBridge",
+                )
+                isFocusable = false
+                isFocusableInTouchMode = false
+                loadDataWithBaseURL(
+                    "https://rw.kitech.ekko/",
+                    youtubePlayerHtml(videoId),
+                    "text/html",
+                    "UTF-8",
+                    null,
+                )
+                webView = this
+            }
+        },
+        update = { view -> webView = view },
+    )
+
+    DisposableEffect(videoId, webView, lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> webView?.onResume()
+                Lifecycle.Event.ON_STOP -> webView?.onPause()
+                else -> Unit
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+            webView?.onResume()
+        }
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            webView?.apply {
+                removeJavascriptInterface("AndroidBridge")
+                stopLoading()
+                onPause()
+                destroy()
+            }
+            webView = null
+        }
+    }
+}
+
+private class YouTubePlaybackBridge(
+    private val onPlaybackState: (Int) -> Unit,
+    private val onPlaybackError: () -> Unit,
+) {
+    private val mainHandler = Handler(Looper.getMainLooper())
+
+    @JavascriptInterface
+    fun onStateChanged(state: Int) {
+        mainHandler.post { onPlaybackState(state) }
+    }
+
+    @JavascriptInterface
+    fun onError(@Suppress("UNUSED_PARAMETER") code: Int) {
+        mainHandler.post { onPlaybackError() }
+    }
+}
+
+private fun youtubePlayerHtml(videoId: String): String = """
+    <!doctype html>
+    <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        html, body, #player { width:100%; height:100%; margin:0; padding:0; overflow:hidden; background:#000; }
+      </style>
+    </head>
+    <body>
+      <div id="player"></div>
+      <script src="https://www.youtube.com/iframe_api"></script>
+      <script>
+        function onYouTubeIframeAPIReady() {
+          new YT.Player('player', {
+            width: '100%',
+            height: '100%',
+            videoId: '$videoId',
+            playerVars: {
+              autoplay: 1,
+              controls: 0,
+              rel: 0,
+              playsinline: 1,
+              disablekb: 1,
+              enablejsapi: 1,
+              origin: 'https://rw.kitech.ekko',
+              widget_referrer: 'https://rw.kitech.ekko'
+            },
+            events: {
+              onStateChange: function(event) {
+                AndroidBridge.onStateChanged(event.data);
+              },
+              onError: function(event) {
+                AndroidBridge.onError(event.data);
+              }
+            }
+          });
+        }
+      </script>
+    </body>
+    </html>
+""".trimIndent()
 
 @Composable
 private fun TopStatus(

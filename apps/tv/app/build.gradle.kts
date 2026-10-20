@@ -4,11 +4,14 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
-val configuredStreamUrl = providers.gradleProperty("EKKO_HLS_URL")
+val configuredYouTubeVideoId = providers.gradleProperty("EKKO_YOUTUBE_VIDEO_ID")
     .orElse("")
     .get()
-    .replace("\\", "\\\\")
-    .replace("\"", "\\\"")
+    .trim()
+
+require(configuredYouTubeVideoId.isBlank() || configuredYouTubeVideoId.matches(Regex("[A-Za-z0-9_-]{11}"))) {
+    "EKKO_YOUTUBE_VIDEO_ID must be a YouTube video ID with 11 characters."
+}
 
 android {
     namespace = "rw.kitech.ekko.tv"
@@ -20,7 +23,7 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "0.1.0"
-        buildConfigField("String", "EKKO_HLS_URL", "\"$configuredStreamUrl\"")
+        buildConfigField("String", "EKKO_YOUTUBE_VIDEO_ID", "\"$configuredYouTubeVideoId\"")
     }
 
     buildFeatures {
@@ -50,10 +53,6 @@ dependencies {
     implementation("androidx.compose.foundation:foundation:1.10.5")
     implementation("androidx.compose.animation:animation:1.10.5")
     implementation("androidx.tv:tv-material:1.1.0")
-
-    implementation("androidx.media3:media3-exoplayer:1.11.0")
-    implementation("androidx.media3:media3-exoplayer-hls:1.11.0")
-    implementation("androidx.media3:media3-ui:1.11.0")
 
     debugImplementation("androidx.compose.ui:ui-tooling:1.10.5")
 }
