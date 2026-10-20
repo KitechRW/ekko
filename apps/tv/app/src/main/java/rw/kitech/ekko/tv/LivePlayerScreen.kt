@@ -383,7 +383,7 @@ private fun YouTubePlayer(
         update = { view -> webView = view },
     )
 
-    DisposableEffect(videoId, webView, lifecycleOwner) {
+    DisposableEffect(videoId, lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_START -> webView?.onResume()
@@ -404,7 +404,6 @@ private fun YouTubePlayer(
                 onPause()
                 destroy()
             }
-            webView = null
         }
     }
 }
